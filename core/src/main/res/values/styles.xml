@@ -1,0 +1,6 @@
+<resources>
+
+    <!-- Base Activity Theme -->
+    <style name="BaseTheme" parent="Theme.AppCompat"></style>
+
+</resources>
