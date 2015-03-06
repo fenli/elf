@@ -30,86 +30,94 @@ public class PersistentStorage<T extends Serializable> implements DataStorage<T>
 
     @Override
     public T get(String key) {
-        return (T) get(key, Serializable.class);
+        synchronized (this) {
+            return (T) get(key, Serializable.class);
+        }
     }
 
-    public <V extends Serializable> V get(String key, Class<V> vClass) {
-        String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
-        if (vClass == String.class) {
-            return (V) mPreferences.getString(hashedKey, null);
-        } else if (vClass == Boolean.class) {
-            return (V) Boolean.valueOf(mPreferences.getBoolean(hashedKey, false));
-        } else if (vClass == Float.class) {
-            return (V) Float.valueOf(mPreferences.getFloat(hashedKey, 0F));
-        } else if (vClass == Integer.class) {
-            return (V) Integer.valueOf(mPreferences.getInt(hashedKey, 0));
-        } else if (vClass == Long.class) {
-            return (V) Long.valueOf(mPreferences.getLong(hashedKey, 0L));
-        } else {
-            try {
-                FileInputStream fis = mContext.openFileInput(hashedKey);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-                V object = (V) ois.readObject();
-                ois.close();
-                fis.close();
-                return object;
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (OptionalDataException e) {
-                e.printStackTrace();
-            } catch (StreamCorruptedException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+    public synchronized <V extends Serializable> V get(String key, Class<V> vClass) {
+        synchronized (this) {
+            String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
+            if (vClass == String.class) {
+                return (V) mPreferences.getString(hashedKey, null);
+            } else if (vClass == Boolean.class) {
+                return (V) Boolean.valueOf(mPreferences.getBoolean(hashedKey, false));
+            } else if (vClass == Float.class) {
+                return (V) Float.valueOf(mPreferences.getFloat(hashedKey, 0F));
+            } else if (vClass == Integer.class) {
+                return (V) Integer.valueOf(mPreferences.getInt(hashedKey, 0));
+            } else if (vClass == Long.class) {
+                return (V) Long.valueOf(mPreferences.getLong(hashedKey, 0L));
+            } else {
+                try {
+                    FileInputStream fis = mContext.openFileInput(hashedKey);
+                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    V object = (V) ois.readObject();
+                    ois.close();
+                    fis.close();
+                    return object;
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (OptionalDataException e) {
+                    e.printStackTrace();
+                } catch (StreamCorruptedException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
             }
-            return null;
         }
     }
 
     @Override
-    public boolean put(String key, T value) {
-        String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
-        SharedPreferences.Editor editor = mPreferences.edit();
-        if (value instanceof String) {
-            editor.putString(hashedKey, (String) value);
-            return editor.commit();
-        } else if (value instanceof Boolean) {
-            editor.putBoolean(hashedKey, (Boolean) value);
-            return editor.commit();
-        } else if (value instanceof Float) {
-            editor.putFloat(hashedKey, (Float) value);
-            return editor.commit();
-        } else if (value instanceof Integer) {
-            editor.putInt(hashedKey, (Integer) value);
-            return editor.commit();
-        } else if (value instanceof Long) {
-            editor.putLong(hashedKey, (Long) value);
-            return editor.commit();
-        } else {
-            try {
-                FileOutputStream fos = mContext.openFileOutput(hashedKey, Context.MODE_PRIVATE);
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
-                oos.writeObject(value);
-                oos.close();
-                fos.close();
+    public synchronized boolean put(String key, T value) {
+        synchronized (this) {
+            String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
+            SharedPreferences.Editor editor = mPreferences.edit();
+            if (value instanceof String) {
+                editor.putString(hashedKey, (String) value);
+                return editor.commit();
+            } else if (value instanceof Boolean) {
+                editor.putBoolean(hashedKey, (Boolean) value);
+                return editor.commit();
+            } else if (value instanceof Float) {
+                editor.putFloat(hashedKey, (Float) value);
+                return editor.commit();
+            } else if (value instanceof Integer) {
+                editor.putInt(hashedKey, (Integer) value);
+                return editor.commit();
+            } else if (value instanceof Long) {
+                editor.putLong(hashedKey, (Long) value);
+                return editor.commit();
+            } else {
+                try {
+                    FileOutputStream fos = mContext.openFileOutput(hashedKey, Context.MODE_PRIVATE);
+                    ObjectOutputStream oos = new ObjectOutputStream(fos);
+                    oos.writeObject(value);
+                    oos.close();
+                    fos.close();
+                    return true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        }
+    }
+
+    @Override
+    public synchronized boolean remove(String key) {
+        synchronized (this) {
+            String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
+            if (mPreferences.contains(hashedKey)) {
+                mPreferences.edit().remove(hashedKey).commit();
                 return true;
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                return mContext.deleteFile(hashedKey);
             }
-            return false;
-        }
-    }
-
-    @Override
-    public boolean remove(String key) {
-        String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
-        if (mPreferences.contains(hashedKey)) {
-            mPreferences.edit().remove(hashedKey).commit();
-            return true;
-        } else {
-            return mContext.deleteFile(hashedKey);
         }
     }
 }
