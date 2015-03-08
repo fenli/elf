@@ -8,21 +8,18 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.AdapterView;
 
+import com.fenlisproject.elf.core.annotation.Binder;
 import com.fenlisproject.elf.core.annotation.ContentView;
-import com.fenlisproject.elf.core.annotation.OnClick;
-import com.fenlisproject.elf.core.annotation.OnItemClick;
-import com.fenlisproject.elf.core.annotation.ViewId;
 import com.fenlisproject.elf.core.config.AppEnvironment;
 import com.fenlisproject.elf.core.data.PersistentStorage;
 import com.fenlisproject.elf.core.handler.BaseTaskExecutor;
+import com.fenlisproject.elf.core.listener.CommonFragmentEventListener;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public abstract class BaseActivity extends ActionBarActivity implements BaseTask {
+public abstract class BaseActivity extends ActionBarActivity implements BaseEventListener {
 
     private HashMap<Integer, Fragment> mActiveFragments;
 
@@ -34,44 +31,9 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseTask
         if (contentView != null) {
             setContentView(contentView.value());
         }
-        bindAllView();
-        bindAllEventListener();
+        Binder.bindView(this, null);
+        Binder.bindEventListener(this, null);
         onContentViewCreated();
-    }
-
-    private void bindAllView() {
-        Field[] fields = getClass().getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            ViewId viewId = field.getAnnotation(ViewId.class);
-            if (viewId != null) {
-                try {
-                    View view = findViewById(viewId.value());
-                    field.set(this, view);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private void bindAllEventListener() {
-        Method[] methods = getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            OnClick onClick = method.getAnnotation(OnClick.class);
-            if (onClick != null) {
-                View view = findViewById(onClick.value());
-                view.setOnClickListener(this);
-            }
-
-            OnItemClick onItemClick = method.getAnnotation(OnItemClick.class);
-            if (onItemClick != null) {
-                View view = findViewById(onItemClick.value());
-                if (view instanceof AdapterView) {
-                    ((AdapterView) view).setOnItemClickListener(this);
-                }
-            }
-        }
     }
 
     protected abstract void onContentViewCreated();
@@ -94,8 +56,8 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseTask
             Map.Entry pairs = (Map.Entry) it.next();
             Fragment fragment = (Fragment) pairs.getValue();
             it.remove();
-            if (fragment instanceof BaseFragmentListener) {
-                intercept = intercept || ((BaseFragmentListener) fragment).onBackPressed();
+            if (fragment instanceof CommonFragmentEventListener) {
+                intercept = intercept || ((CommonFragmentEventListener) fragment).onBackPressed();
             }
         }
         if (!intercept) {

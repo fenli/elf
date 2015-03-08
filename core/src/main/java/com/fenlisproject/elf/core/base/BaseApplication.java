@@ -10,19 +10,9 @@ import com.fenlisproject.elf.core.data.PersistentStorage;
 
 public class BaseApplication extends Application {
 
-    private static BaseApplication sInstance;
     private AppEnvironment mAppEnvironment;
     private PersistentStorage mDefaultSessionStorage;
     private MemoryStorage<Typeface> fontCache;
-
-    public BaseApplication() {
-        super();
-        sInstance = this;
-    }
-
-    public static BaseApplication getInstance() {
-        return sInstance;
-    }
 
     @Override
     public void onCreate() {

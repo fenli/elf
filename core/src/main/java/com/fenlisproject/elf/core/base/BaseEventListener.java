@@ -3,7 +3,7 @@ package com.fenlisproject.elf.core.base;
 import android.view.View;
 import android.widget.AdapterView;
 
-public interface BaseTask extends View.OnClickListener, AdapterView.OnItemClickListener {
+public interface BaseEventListener extends View.OnClickListener, AdapterView.OnItemClickListener {
 
     public void runDelayed(final String tag, long delayMilis, final Object... args);
 

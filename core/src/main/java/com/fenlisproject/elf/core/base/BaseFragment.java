@@ -10,19 +10,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
+import com.fenlisproject.elf.core.annotation.Binder;
 import com.fenlisproject.elf.core.annotation.ContentView;
-import com.fenlisproject.elf.core.annotation.OnClick;
-import com.fenlisproject.elf.core.annotation.OnItemClick;
-import com.fenlisproject.elf.core.annotation.ViewId;
 import com.fenlisproject.elf.core.config.AppEnvironment;
 import com.fenlisproject.elf.core.data.PersistentStorage;
 import com.fenlisproject.elf.core.handler.BaseTaskExecutor;
+import com.fenlisproject.elf.core.listener.CommonFragmentActivityListener;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
-public abstract class BaseFragment extends Fragment implements BaseTask {
+public abstract class BaseFragment extends Fragment implements BaseEventListener {
 
     private View mContentView;
 
@@ -35,45 +32,11 @@ public abstract class BaseFragment extends Fragment implements BaseTask {
         Annotation classAnnotation = getClass().getAnnotation(ContentView.class);
         if (classAnnotation instanceof ContentView) {
             mContentView = inflater.inflate(((ContentView) classAnnotation).value(), container, false);
-            bindAllView();
-            bindAllEventListener();
+            Binder.bindView(this, mContentView);
+            Binder.bindEventListener(this, mContentView);
             onContentViewCreated();
         }
         return mContentView;
-    }
-
-    private void bindAllView() {
-        Field[] fields = getClass().getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            ViewId viewId = field.getAnnotation(ViewId.class);
-            if (viewId != null) {
-                try {
-                    field.set(this, getContentView().findViewById(viewId.value()));
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private void bindAllEventListener() {
-        Method[] methods = getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            OnClick onClick = method.getAnnotation(OnClick.class);
-            if (onClick != null) {
-                View view = getContentView().findViewById(onClick.value());
-                view.setOnClickListener(this);
-            }
-
-            OnItemClick onItemClick = method.getAnnotation(OnItemClick.class);
-            if (onItemClick != null) {
-                View view = getContentView().findViewById(onItemClick.value());
-                if (view instanceof AdapterView) {
-                    ((AdapterView) view).setOnItemClickListener(this);
-                }
-            }
-        }
     }
 
     protected abstract void onContentViewCreated();
@@ -111,8 +74,8 @@ public abstract class BaseFragment extends Fragment implements BaseTask {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (activity instanceof BaseActivityListener) {
-            ((BaseActivityListener) activity).onFragmentAttached(this);
+        if (activity instanceof CommonFragmentActivityListener) {
+            ((CommonFragmentActivityListener) activity).onFragmentAttached(this);
         }
     }
 
