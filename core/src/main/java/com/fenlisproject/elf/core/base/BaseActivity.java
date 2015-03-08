@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public abstract class BaseActivity extends ActionBarActivity implements BaseEventListener {
+public abstract class BaseActivity extends ActionBarActivity implements BaseEventListener, BaseTask {
 
     private HashMap<Integer, Fragment> mActiveFragments;
 

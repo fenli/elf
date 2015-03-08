@@ -19,7 +19,7 @@ import com.fenlisproject.elf.core.listener.CommonFragmentActivityListener;
 
 import java.lang.annotation.Annotation;
 
-public abstract class BaseFragment extends Fragment implements BaseEventListener {
+public abstract class BaseFragment extends Fragment implements BaseEventListener, BaseTask {
 
     private View mContentView;
 
