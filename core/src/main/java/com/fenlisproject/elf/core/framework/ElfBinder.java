@@ -1,4 +1,4 @@
-package com.fenlisproject.elf.core.annotation;
+package com.fenlisproject.elf.core.framework;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -6,10 +6,17 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.AdapterView;
 
+import com.fenlisproject.elf.core.annotation.OnClick;
+import com.fenlisproject.elf.core.annotation.OnItemClick;
+import com.fenlisproject.elf.core.annotation.ViewId;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-public class Binder {
+public class ElfBinder {
+
+    private ElfBinder() {
+    }
 
     public static void bindView(Object receiver, View parentView) {
         Field[] fields = receiver.getClass().getDeclaredFields();
@@ -58,11 +65,11 @@ public class Binder {
             if (onItemClick != null) {
                 View view = null;
                 if (receiver instanceof Activity) {
-                    view = ((Activity) receiver).findViewById(onClick.value());
+                    view = ((Activity) receiver).findViewById(onItemClick.value());
                 } else if (receiver instanceof Fragment) {
-                    view = parentView.findViewById(onClick.value());
+                    view = parentView.findViewById(onItemClick.value());
                 } else if (receiver instanceof Dialog) {
-                    view = ((Dialog) receiver).findViewById(onClick.value());
+                    view = ((Dialog) receiver).findViewById(onItemClick.value());
                 }
                 if (view instanceof AdapterView &&
                         receiver instanceof AdapterView.OnItemClickListener) {

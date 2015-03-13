@@ -1,41 +1,40 @@
 package com.fenlisproject.elf.sample;
 
-import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import com.fenlisproject.elf.core.annotation.ContentView;
+import com.fenlisproject.elf.core.annotation.OnItemClick;
+import com.fenlisproject.elf.core.annotation.ViewId;
+import com.fenlisproject.elf.core.base.BaseActivity;
 
 import org.fenlisproject.elf.sample.R;
 
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends ActionBarActivity {
+@ContentView(R.layout.activity_main)
+public class MainActivity extends BaseActivity {
+
+    @ViewId(R.id.menu)
+    private ListView menuListView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    protected void onContentViewCreated() {
+        List<String> menu = new ArrayList<>();
+        menu.add("Form Validation");
+        menuListView.setAdapter(
+                new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, menu));
     }
 
+    @OnItemClick(R.id.menu)
+    public void menuItemClicked(int position) {
+        Log.d("TAG", "Clicked item position : " + position);
+        switch (position) {
+            case 0:
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+                break;
         }
-
-        return super.onOptionsItemSelected(item);
     }
 }

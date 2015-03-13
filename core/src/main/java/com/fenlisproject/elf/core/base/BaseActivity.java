@@ -8,12 +8,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.AdapterView;
 
-import com.fenlisproject.elf.core.annotation.Binder;
+import com.fenlisproject.elf.core.framework.ElfBinder;
 import com.fenlisproject.elf.core.annotation.ContentView;
 import com.fenlisproject.elf.core.config.AppEnvironment;
 import com.fenlisproject.elf.core.data.PersistentStorage;
-import com.fenlisproject.elf.core.handler.BaseTaskExecutor;
-import com.fenlisproject.elf.core.listener.CommonFragmentEventListener;
+import com.fenlisproject.elf.core.framework.ElfCaller;
+import com.fenlisproject.elf.core.event.CommonFragmentEventListener;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,8 +31,8 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseEven
         if (contentView != null) {
             setContentView(contentView.value());
         }
-        Binder.bindView(this, null);
-        Binder.bindEventListener(this, null);
+        ElfBinder.bindView(this, null);
+        ElfBinder.bindEventListener(this, null);
         onContentViewCreated();
     }
 
@@ -40,12 +40,12 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseEven
 
     @Override
     public void onClick(View v) {
-        BaseTaskExecutor.executeOnClickListener(this, v.getId());
+        ElfCaller.callOnClickListener(this, v.getId());
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        BaseTaskExecutor.executeOnItemClickListener(this, parent.getId(), position);
+        ElfCaller.callOnItemClickListener(this, parent.getId(), position);
     }
 
     @Override
@@ -70,7 +70,7 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseEven
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                BaseTaskExecutor.executeMethodByTag(BaseActivity.this, tag, args);
+                ElfCaller.callMethodByTag(BaseActivity.this, tag, args);
             }
         }, delayMilis);
     }
@@ -80,7 +80,7 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseEven
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                BaseTaskExecutor.executeMethodByTag(BaseActivity.this, tag, args);
+                ElfCaller.callMethodByTag(BaseActivity.this, tag, args);
             }
         });
     }

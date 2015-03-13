@@ -15,7 +15,7 @@ import java.io.OptionalDataException;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
 
-public class PersistentStorage<T extends Serializable> implements DataStorage<T> {
+public class PersistentStorage implements DataStorage<Serializable> {
 
     private Context mContext;
     private String mBundleName;
@@ -29,13 +29,11 @@ public class PersistentStorage<T extends Serializable> implements DataStorage<T>
     }
 
     @Override
-    public T get(String key) {
-        synchronized (this) {
-            return (T) get(key, Serializable.class);
-        }
+    public Serializable get(String key) {
+        return get(key, Serializable.class);
     }
-
-    public synchronized <V extends Serializable> V get(String key, Class<V> vClass) {
+    
+    public <V extends Serializable> V get(String key, Class<V> vClass) {
         synchronized (this) {
             String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
             if (vClass == String.class) {
@@ -73,7 +71,7 @@ public class PersistentStorage<T extends Serializable> implements DataStorage<T>
     }
 
     @Override
-    public synchronized boolean put(String key, T value) {
+    public boolean put(String key, Serializable value) {
         synchronized (this) {
             String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
             SharedPreferences.Editor editor = mPreferences.edit();
@@ -109,7 +107,7 @@ public class PersistentStorage<T extends Serializable> implements DataStorage<T>
     }
 
     @Override
-    public synchronized boolean remove(String key) {
+    public boolean remove(String key) {
         synchronized (this) {
             String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
             if (mPreferences.contains(hashedKey)) {

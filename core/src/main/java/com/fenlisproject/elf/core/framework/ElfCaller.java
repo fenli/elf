@@ -1,4 +1,4 @@
-package com.fenlisproject.elf.core.handler;
+package com.fenlisproject.elf.core.framework;
 
 import com.fenlisproject.elf.core.annotation.OnClick;
 import com.fenlisproject.elf.core.annotation.OnItemClick;
@@ -7,9 +7,12 @@ import com.fenlisproject.elf.core.annotation.Tag;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class BaseTaskExecutor {
+public class ElfCaller {
 
-    public static void executeOnClickListener(Object receiver, int id) {
+    private ElfCaller() {
+    }
+
+    public static Object callOnClickListener(Object receiver, int id) {
         Method[] methods = receiver.getClass().getDeclaredMethods();
         for (Method method : methods) {
             method.setAccessible(true);
@@ -17,17 +20,19 @@ public class BaseTaskExecutor {
             if (onClick != null) {
                 try {
                     if (onClick.value() == id) {
-                        method.invoke(receiver);
-                        return;
+                        return method.invoke(receiver);
                     }
-                } catch (InvocationTargetException | IllegalAccessException e) {
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
         }
+        return null;
     }
 
-    public static void executeOnItemClickListener(Object receiver, int id, int position) {
+    public static Object callOnItemClickListener(Object receiver, int id, int position) {
         Method[] methods = receiver.getClass().getDeclaredMethods();
         for (Method method : methods) {
             method.setAccessible(true);
@@ -35,17 +40,19 @@ public class BaseTaskExecutor {
             if (onItemClick != null) {
                 try {
                     if (onItemClick.value() == id) {
-                        method.invoke(receiver, position);
-                        return;
+                        return method.invoke(receiver, position);
                     }
-                } catch (InvocationTargetException | IllegalAccessException e) {
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
         }
+        return null;
     }
 
-    public static Object executeMethodByTag(final Object receiver, String tag, Object... args) {
+    public static Object callMethodByTag(final Object receiver, String tag, Object... args) {
         Method[] methods = receiver.getClass().getDeclaredMethods();
         for (final Method method : methods) {
             method.setAccessible(true);
@@ -54,7 +61,9 @@ public class BaseTaskExecutor {
                 if (methodAnnotation.value().equalsIgnoreCase(tag)) {
                     try {
                         return method.invoke(receiver, args);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
                         e.printStackTrace();
                     }
                 }

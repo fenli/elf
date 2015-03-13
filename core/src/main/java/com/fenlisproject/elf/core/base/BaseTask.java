@@ -1,6 +1,6 @@
 package com.fenlisproject.elf.core.base;
 
-public interface BaseTask {
+interface BaseTask {
 
     public void runDelayed(final String tag, long delayMilis, final Object... args);
 

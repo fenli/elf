@@ -10,12 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
-import com.fenlisproject.elf.core.annotation.Binder;
+import com.fenlisproject.elf.core.event.CommonActivityEventListener;
+import com.fenlisproject.elf.core.framework.ElfBinder;
 import com.fenlisproject.elf.core.annotation.ContentView;
 import com.fenlisproject.elf.core.config.AppEnvironment;
 import com.fenlisproject.elf.core.data.PersistentStorage;
-import com.fenlisproject.elf.core.handler.BaseTaskExecutor;
-import com.fenlisproject.elf.core.listener.CommonFragmentActivityListener;
+import com.fenlisproject.elf.core.framework.ElfCaller;
 
 import java.lang.annotation.Annotation;
 
@@ -32,8 +32,8 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
         Annotation classAnnotation = getClass().getAnnotation(ContentView.class);
         if (classAnnotation instanceof ContentView) {
             mContentView = inflater.inflate(((ContentView) classAnnotation).value(), container, false);
-            Binder.bindView(this, mContentView);
-            Binder.bindEventListener(this, mContentView);
+            ElfBinder.bindView(this, mContentView);
+            ElfBinder.bindEventListener(this, mContentView);
             onContentViewCreated();
         }
         return mContentView;
@@ -43,12 +43,12 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
 
     @Override
     public void onClick(View v) {
-        BaseTaskExecutor.executeOnClickListener(this, v.getId());
+        ElfCaller.callOnClickListener(this, v.getId());
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        BaseTaskExecutor.executeOnItemClickListener(this, parent.getId(), position);
+        ElfCaller.callOnItemClickListener(this, parent.getId(), position);
     }
 
     @Override
@@ -56,7 +56,7 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                BaseTaskExecutor.executeMethodByTag(BaseFragment.this, tag, args);
+                ElfCaller.callMethodByTag(BaseFragment.this, tag, args);
             }
         }, delayMilis);
     }
@@ -66,7 +66,7 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                BaseTaskExecutor.executeMethodByTag(BaseFragment.this, tag, args);
+                ElfCaller.callMethodByTag(BaseFragment.this, tag, args);
             }
         });
     }
@@ -74,8 +74,8 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (activity instanceof CommonFragmentActivityListener) {
-            ((CommonFragmentActivityListener) activity).onFragmentAttached(this);
+        if (activity instanceof CommonActivityEventListener) {
+            ((CommonActivityEventListener) activity).onFragmentAttached(this);
         }
     }
 

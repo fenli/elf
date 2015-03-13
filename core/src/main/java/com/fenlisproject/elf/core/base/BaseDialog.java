@@ -5,9 +5,9 @@ import android.content.Context;
 import android.view.View;
 import android.widget.AdapterView;
 
-import com.fenlisproject.elf.core.annotation.Binder;
+import com.fenlisproject.elf.core.framework.ElfBinder;
 import com.fenlisproject.elf.core.annotation.ContentView;
-import com.fenlisproject.elf.core.handler.BaseTaskExecutor;
+import com.fenlisproject.elf.core.framework.ElfCaller;
 
 public abstract class BaseDialog extends Dialog implements BaseEventListener {
 
@@ -31,8 +31,8 @@ public abstract class BaseDialog extends Dialog implements BaseEventListener {
         if (contentView != null) {
             setContentView(contentView.value());
         }
-        Binder.bindView(this, null);
-        Binder.bindEventListener(this, null);
+        ElfBinder.bindView(this, null);
+        ElfBinder.bindEventListener(this, null);
         onContentViewCreated();
     }
 
@@ -40,11 +40,11 @@ public abstract class BaseDialog extends Dialog implements BaseEventListener {
 
     @Override
     public void onClick(View v) {
-        BaseTaskExecutor.executeOnClickListener(this, v.getId());
+        ElfCaller.callOnClickListener(this, v.getId());
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        BaseTaskExecutor.executeOnItemClickListener(this, parent.getId(), position);
+        ElfCaller.callOnItemClickListener(this, parent.getId(), position);
     }
 }

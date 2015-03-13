@@ -2,18 +2,13 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: "com.jfrog.bintray"
 
-version = "0.0.0"
-def versionPropsFile = file('version.properties')
-if (versionPropsFile.canRead()) {
-    def Properties versionProps = new Properties()
-    versionProps.load(new FileInputStream(versionPropsFile))
-    def code = versionProps['VERSION_CODE'].toInteger() + 1
-    versionProps['VERSION_CODE'] = code.toString()
-    versionProps.store(versionPropsFile.newWriter(), null)
-    version = "0.0." + code
-} else {
-    throw new GradleException("Could not read version.properties!")
-}
+def longVersionName = "git -C ${rootDir} describe --tags --long".execute().text.trim()
+def (fullVersionTag, versionBuild, gitSha) = longVersionName.tokenize('-')
+def (versionMajor, versionMinor, versionPatch) = fullVersionTag.tokenize('.')
+def siteUrl = 'https://github.com/fenli/elf'
+def gitUrl = 'https://github.com/fenli/elf.git'
+group = "com.fenlisproject.elf"
+version = "$versionMajor.$versionMinor.$versionPatch"
 
 android {
     compileSdkVersion 21
@@ -44,24 +39,14 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.+'
 }
 
-def siteUrl = 'https://github.com/fenli/elf'      // Homepage URL of the library
-def gitUrl = 'https://github.com/fenli/elf.git'   // Git repository URL
-group = "com.fenlisproject.elf"                   // Maven Group ID for the artifact
-
-
 install {
     repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
         pom {
             project {
                 packaging 'aar'
-
-                // Add your description here
                 name 'Elf Framework'
                 description = 'Annotation based android framework.'
                 url siteUrl
-
-                // Set your license
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
@@ -107,7 +92,6 @@ artifacts {
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
-// https://github.com/bintray/gradle-bintray-plugin
 bintray {
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
@@ -115,7 +99,6 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "maven"
-        // it is the name that appears in bintray when logged
         name = "elf-framework"
         websiteUrl = siteUrl
         vcsUrl = gitUrl
@@ -123,15 +106,9 @@ bintray {
         publish = true
         version {
             gpg {
-                sign = true //Determines whether to GPG sign the files. The default is false
-                passphrase = properties.getProperty("bintray.gpg.password") //Optional. The passphrase for GPG signing'
+                sign = true
+                passphrase = properties.getProperty("bintray.gpg.password")
             }
-//            mavenCentralSync {
-//                sync = true //Optional (true by default). Determines whether to sync the version to Maven Central.
-//                user = properties.getProperty("bintray.oss.user") //OSS user token
-//                password = properties.getProperty("bintray.oss.password") //OSS user password
-//                close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
-//            }
         }
     }
 }
