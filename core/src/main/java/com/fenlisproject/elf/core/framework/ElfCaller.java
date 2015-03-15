@@ -18,6 +18,7 @@ package com.fenlisproject.elf.core.framework;
 
 import com.fenlisproject.elf.core.annotation.OnClick;
 import com.fenlisproject.elf.core.annotation.OnItemClick;
+import com.fenlisproject.elf.core.annotation.OnMenuItemSelected;
 import com.fenlisproject.elf.core.annotation.Tag;
 
 import java.lang.reflect.InvocationTargetException;
@@ -66,6 +67,27 @@ public class ElfCaller {
             }
         }
         return null;
+    }
+
+    public static boolean callOnMenuItemSelectedListener(Object receiver, int id) {
+        Method[] methods = receiver.getClass().getDeclaredMethods();
+        for (Method method : methods) {
+            method.setAccessible(true);
+            OnMenuItemSelected onMenuItemSelected = method.getAnnotation(OnMenuItemSelected.class);
+            if (onMenuItemSelected != null) {
+                try {
+                    if (onMenuItemSelected.value() == id) {
+                        method.invoke(receiver);
+                        return true;
+                    }
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
     }
 
     public static Object callMethodByTag(final Object receiver, String tag, Object... args) {

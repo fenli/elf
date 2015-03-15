@@ -21,15 +21,18 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 
-import com.fenlisproject.elf.core.framework.ElfBinder;
 import com.fenlisproject.elf.core.annotation.ContentView;
+import com.fenlisproject.elf.core.annotation.OptionMenu;
 import com.fenlisproject.elf.core.config.AppEnvironment;
 import com.fenlisproject.elf.core.data.PersistentStorage;
-import com.fenlisproject.elf.core.framework.ElfCaller;
 import com.fenlisproject.elf.core.event.CommonFragmentEventListener;
+import com.fenlisproject.elf.core.framework.ElfBinder;
+import com.fenlisproject.elf.core.framework.ElfCaller;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,6 +57,24 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseEven
     }
 
     protected abstract void onContentViewCreated();
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        OptionMenu optionMenu = getClass().getAnnotation(OptionMenu.class);
+        if (optionMenu != null) {
+            getMenuInflater().inflate(optionMenu.value(), menu);
+            return true;
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (ElfCaller.callOnMenuItemSelectedListener(this, item.getItemId())) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onClick(View v) {

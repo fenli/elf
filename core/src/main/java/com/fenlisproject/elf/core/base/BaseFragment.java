@@ -22,18 +22,20 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
-import com.fenlisproject.elf.core.event.CommonActivityEventListener;
-import com.fenlisproject.elf.core.framework.ElfBinder;
 import com.fenlisproject.elf.core.annotation.ContentView;
+import com.fenlisproject.elf.core.annotation.OptionMenu;
 import com.fenlisproject.elf.core.config.AppEnvironment;
 import com.fenlisproject.elf.core.data.PersistentStorage;
+import com.fenlisproject.elf.core.event.CommonActivityEventListener;
+import com.fenlisproject.elf.core.framework.ElfBinder;
 import com.fenlisproject.elf.core.framework.ElfCaller;
-
-import java.lang.annotation.Annotation;
 
 public abstract class BaseFragment extends Fragment implements BaseEventListener, BaseTask {
 
@@ -43,17 +45,39 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
         return mContentView;
     }
 
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        OptionMenu optionMenu = getClass().getAnnotation(OptionMenu.class);
+        if (optionMenu != null) {
+            setHasOptionsMenu(true);
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
-        Annotation classAnnotation = getClass().getAnnotation(ContentView.class);
-        if (classAnnotation instanceof ContentView) {
-            mContentView = inflater.inflate(((ContentView) classAnnotation).value(), container, false);
+        ContentView contentView = getClass().getAnnotation(ContentView.class);
+        if (contentView != null) {
+            mContentView = inflater.inflate(contentView.value(), container, false);
             ElfBinder.bindView(this, mContentView);
             ElfBinder.bindAnimation(this);
             ElfBinder.bindEventListener(this, mContentView);
             onContentViewCreated();
         }
         return mContentView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        OptionMenu optionMenu = getClass().getAnnotation(OptionMenu.class);
+        if (optionMenu != null) {
+            inflater.inflate(optionMenu.value(), menu);
+        }
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return ElfCaller.callOnMenuItemSelectedListener(this, item.getItemId());
     }
 
     protected abstract void onContentViewCreated();
