@@ -51,7 +51,7 @@ public class ExtendedTextView extends TextView {
             if (fontName != null) {
                 Typeface tf = fontCache.get(fontName);
                 if (tf == null) {
-                    tf = Typeface.createFromAsset(context.getAssets(), "fonts/" + fontName + ".ttf");
+                    tf = Typeface.createFromAsset(context.getAssets(), "fonts/" + fontName);
                     fontCache.put(fontName, tf);
                 }
                 setTypeface(tf);

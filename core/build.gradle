@@ -2,11 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: "com.jfrog.bintray"
 
-def fullVersionTag = "git -C ${rootDir} describe --tags".execute().text.trim()
+def tags = "git describe --tags --long".execute().text.trim()
+def (fullVersion, buildNumber, gitSha) = tags.tokenize('-')
 def siteUrl = 'https://github.com/fenli/elf'
 def gitUrl = 'https://github.com/fenli/elf.git'
 group = "com.fenlisproject.elf"
-version = fullVersionTag.replaceFirst('v', '')
+version = fullVersion.replaceFirst('v', '')
 
 android {
     compileSdkVersion 21
@@ -34,7 +35,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:21.+'
+    compile 'com.android.support:appcompat-v7:22.0.0'
 }
 
 install {
