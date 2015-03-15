@@ -18,10 +18,13 @@ package com.fenlisproject.elf.core.framework;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 
+import com.fenlisproject.elf.core.annotation.AnimationResourceId;
 import com.fenlisproject.elf.core.annotation.OnClick;
 import com.fenlisproject.elf.core.annotation.OnItemClick;
 import com.fenlisproject.elf.core.annotation.ViewId;
@@ -52,6 +55,29 @@ public class ElfBinder {
                     if (view != null) {
                         field.set(receiver, view);
                     }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static void bindAnimation(Object receiver) {
+        Field[] fields = receiver.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            AnimationResourceId animResId = field.getAnnotation(AnimationResourceId.class);
+            if (animResId != null) {
+                try {
+                    Context context = null;
+                    if (receiver instanceof Activity) {
+                        context = (Activity) receiver;
+                    } else if (receiver instanceof Fragment) {
+                        context = ((Fragment) receiver).getActivity();
+                    } else if (receiver instanceof Dialog) {
+                        context = ((Dialog) receiver).getContext();
+                    }
+                    field.set(receiver, AnimationUtils.loadAnimation(context, animResId.value()));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }

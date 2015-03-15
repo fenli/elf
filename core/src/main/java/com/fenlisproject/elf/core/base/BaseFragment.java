@@ -49,6 +49,7 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
         if (classAnnotation instanceof ContentView) {
             mContentView = inflater.inflate(((ContentView) classAnnotation).value(), container, false);
             ElfBinder.bindView(this, mContentView);
+            ElfBinder.bindAnimation(this);
             ElfBinder.bindEventListener(this, mContentView);
             onContentViewCreated();
         }

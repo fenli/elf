@@ -48,6 +48,7 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseEven
             setContentView(contentView.value());
         }
         ElfBinder.bindView(this, null);
+        ElfBinder.bindAnimation(this);
         ElfBinder.bindEventListener(this, null);
         onContentViewCreated();
     }

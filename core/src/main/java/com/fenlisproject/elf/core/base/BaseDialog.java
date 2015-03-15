@@ -48,6 +48,7 @@ public abstract class BaseDialog extends Dialog implements BaseEventListener {
             setContentView(contentView.value());
         }
         ElfBinder.bindView(this, null);
+        ElfBinder.bindAnimation(this);
         ElfBinder.bindEventListener(this, null);
         onContentViewCreated();
     }
