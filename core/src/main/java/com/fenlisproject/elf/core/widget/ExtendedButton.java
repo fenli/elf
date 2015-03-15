@@ -51,7 +51,7 @@ public class ExtendedButton extends Button {
             if (fontName != null) {
                 Typeface tf = fontCache.get(fontName);
                 if (tf == null) {
-                    tf = Typeface.createFromAsset(context.getAssets(), "fonts/" + fontName);
+                    tf = Typeface.createFromAsset(context.getAssets(), "fonts/" + fontName + ".ttf");
                     fontCache.put(fontName, tf);
                 }
                 setTypeface(tf);
