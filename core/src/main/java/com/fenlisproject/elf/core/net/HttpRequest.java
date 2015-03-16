@@ -60,7 +60,7 @@ public class HttpRequest {
 
     public InputStream getInputStream() {
         try {
-            return getHttpURLConnection().getInputStream();
+            return mConnection.getInputStream();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -70,47 +70,27 @@ public class HttpRequest {
     }
 
     public InputStreamReader getStreamReader() {
-        try {
-            return new InputStreamReader(mConnection.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        InputStream is = getInputStream();
+        return new InputStreamReader(is != null ? is : mConnection.getErrorStream());
     }
 
     public Bitmap getBitmapContent() {
-        Bitmap bitmap = null;
-        try {
-            bitmap = BitmapFactory.decodeStream(mConnection.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } catch (OutOfMemoryError e) {
-            System.gc();
-            e.printStackTrace();
-        }
-        return bitmap;
+        return BitmapFactory.decodeStream(getInputStream());
     }
 
     public String getTextContent() {
-        String text = null;
         try {
             BufferedReader r = new BufferedReader(getStreamReader());
-            StringBuilder total = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             String line;
             while ((line = r.readLine()) != null) {
-                total.append(line);
+                sb.append(line);
             }
-            text = total.toString();
+            return sb.toString();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return text;
+        return null;
     }
 
     public static class Builder {
