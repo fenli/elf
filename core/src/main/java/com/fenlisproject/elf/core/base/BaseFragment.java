@@ -25,9 +25,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 
 import com.fenlisproject.elf.core.annotation.ContentView;
 import com.fenlisproject.elf.core.annotation.OptionMenu;
@@ -59,10 +61,12 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
         if (contentView != null) {
             mContentView = inflater.inflate(contentView.value(), container, false);
             ElfBinder.bindView(this, mContentView);
-            ElfBinder.bindAnimation(this);
             ElfBinder.bindEventListener(this, mContentView);
-            onContentViewCreated();
         }
+        ElfBinder.bindAnimation(this);
+        ElfBinder.bindIntentExtra(this);
+        ElfBinder.bindFragmentArgument(this);
+        onContentViewCreated();
         return mContentView;
     }
 
@@ -88,8 +92,42 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
     }
 
     @Override
+    public boolean onLongClick(View v) {
+        return ElfCaller.callOnLongClickListener(this, v.getId());
+    }
+
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        ElfCaller.callOnFocusChangeListener(this, v.getId(), hasFocus);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        return ElfCaller.callOnTouchListener(this, v.getId(), event);
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         ElfCaller.callOnItemClickListener(this, parent.getId(), position);
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        return ElfCaller.callOnItemLongClickListener(this, parent.getId(), position);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        ElfCaller.callOnItemSelectedListener(this, parent.getId(), position);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        ElfCaller.callOnCheckedChangedListener(this, buttonView.getId(), isChecked);
     }
 
     @Override
