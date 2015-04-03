@@ -19,16 +19,23 @@ package com.fenlisproject.elf.core.net;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.fenlisproject.elf.core.net.entity.FileFormData;
+import com.fenlisproject.elf.core.net.entity.MultipartFormData;
+import com.fenlisproject.elf.core.net.entity.StringFormData;
+import com.fenlisproject.elf.core.util.FileUtils;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
@@ -71,7 +78,11 @@ public class HttpRequest {
 
     public InputStreamReader getStreamReader() {
         InputStream is = getInputStream();
-        return new InputStreamReader(is != null ? is : mConnection.getErrorStream());
+        if (is != null) {
+            return new InputStreamReader(new BufferedInputStream(is));
+        } else {
+            return new InputStreamReader(new BufferedInputStream(mConnection.getErrorStream()));
+        }
     }
 
     public Bitmap getBitmapContent() {
@@ -95,14 +106,16 @@ public class HttpRequest {
 
     public static class Builder {
 
-        public static final int DEFAULT_CONNECTION_TIMEOUT = 8000;
+        public static final int DEFAULT_CONNECTION_TIMEOUT = 12000;
+        public static final String CRLF = "\r\n";
+        public static final String TWO_HYPHENS = "--";
+        private static final String BOUNDARY = "ElfHttpRequestBoundary";
         private int mConnectionTimeout;
         private boolean isUseCache;
         private String mRequestUrl;
-        private String mRequestBody;
         private RequestMethod mRequestMethod;
         private List<NameValuePair> mUrlParams;
-        private List<NameValuePair> mFormData;
+        private List<MultipartFormData> mFormData;
         private List<NameValuePair> mHeaders;
         private boolean isForceUseCache;
         private int mRetryCount;
@@ -130,7 +143,12 @@ public class HttpRequest {
         }
 
         public Builder addFormData(String key, String value) {
-            this.mFormData.add(new BasicNameValuePair(key, value));
+            this.mFormData.add(new StringFormData(key, value));
+            return this;
+        }
+
+        public Builder addFormData(String key, File value) {
+            this.mFormData.add(new FileFormData(key, value));
             return this;
         }
 
@@ -147,10 +165,6 @@ public class HttpRequest {
         public Builder setRequestMethod(RequestMethod method) {
             this.mRequestMethod = method;
             return this;
-        }
-
-        public void setRequestBody(String mRequestBody) {
-            this.mRequestBody = mRequestBody;
         }
 
         public Builder setForceCache(boolean forceUseCache) {
@@ -171,23 +185,6 @@ public class HttpRequest {
             StringBuilder result = new StringBuilder();
             boolean first = true;
             for (NameValuePair params : mUrlParams) {
-                if (first) first = false;
-                else result.append("&");
-                try {
-                    result.append(URLEncoder.encode(params.getName(), "UTF-8"));
-                    result.append("=");
-                    result.append(URLEncoder.encode(params.getValue(), "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-            return result.toString();
-        }
-
-        private String generateUrlEncodedFormData() {
-            StringBuilder result = new StringBuilder();
-            boolean first = true;
-            for (NameValuePair params : mFormData) {
                 if (first) first = false;
                 else result.append("&");
                 try {
@@ -227,18 +224,57 @@ public class HttpRequest {
                                 .setRequestProperty(header.getName(), header.getValue());
                     }
                     if (mRequestMethod == RequestMethod.POST && mFormData.size() > 0) {
-                        request.getHttpURLConnection()
-                                .setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                        mRequestBody = generateUrlEncodedFormData();
-                    }
-                    if (mRequestBody != null) {
+                        request.getHttpURLConnection().setRequestProperty(
+                                "Content-Type",
+                                "multipart/form-data; boundary=" + BOUNDARY);
                         request.getHttpURLConnection().setDoInput(true);
                         request.getHttpURLConnection().setDoOutput(true);
                         OutputStream os = request.getHttpURLConnection().getOutputStream();
-                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-                        writer.write(mRequestBody);
-                        writer.flush();
-                        writer.close();
+                        DataOutputStream dos = new DataOutputStream(os);
+                        for (MultipartFormData data : mFormData) {
+                            if (data instanceof StringFormData) {
+                                StringFormData stringData = ((StringFormData) data);
+                                dos.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
+                                dos.writeBytes(String.format(
+                                        "Content-Disposition: form-data; name=\"%s\"",
+                                        stringData.getKey()
+                                ));
+                                dos.writeBytes(CRLF + CRLF);
+                                dos.writeBytes(stringData.getValue());
+                                dos.writeBytes(CRLF);
+                            } else if (data instanceof FileFormData) {
+                                FileFormData fileData = ((FileFormData) data);
+                                if (fileData.getValue().exists()) {
+                                    String mime = FileUtils.getMimeType(fileData.getValue());
+                                    dos.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
+                                    dos.writeBytes(String.format(
+                                            "Content-Disposition: form-data; name=\"%s\"; " +
+                                                    "filename=\"%s\"",
+                                            fileData.getKey(),
+                                            fileData.getValue().getName()
+                                    ));
+                                    if (mime != null) {
+                                        dos.writeBytes(CRLF);
+                                        dos.writeBytes(String.format("Content-Type: %s", mime));
+                                    }
+                                    dos.writeBytes(CRLF + CRLF);
+                                    FileInputStream fis = new FileInputStream(fileData.getValue());
+                                    byte[] buf = new byte[1024];
+                                    try {
+                                        int read;
+                                        while ((read = fis.read(buf)) != -1) {
+                                            dos.write(buf, 0, read);
+                                        }
+                                    } catch (IOException ioe) {
+                                        ioe.printStackTrace();
+                                    }
+                                    dos.writeBytes(CRLF);
+                                }
+                            }
+                        }
+                        dos.writeBytes(TWO_HYPHENS + BOUNDARY + TWO_HYPHENS);
+                        dos.flush();
+                        dos.close();
                         os.close();
                     }
                     if (isForceUseCache) {

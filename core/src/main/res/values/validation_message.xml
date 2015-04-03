@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="required_validation_message">This field is required</string>
+    <string name="email_validation_message">Please enter valid email address</string>
+    <string name="minlength_validation_message">Please enter at least %1$d characters</string>
+    <string name="match_validation_message">This field value doesn\'t match with %1$s</string>
+</resources>

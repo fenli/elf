@@ -16,6 +16,8 @@
 
 package com.fenlisproject.elf.core.util;
 
+import android.webkit.MimeTypeMap;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -107,6 +109,15 @@ public class FileUtils {
         if (!file.exists()) {
             file.mkdirs();
         }
+    }
+
+    public static String getMimeType(File file) {
+        String extension = MimeTypeMap.getFileExtensionFromUrl(file.getAbsolutePath());
+        if (extension != null) {
+            MimeTypeMap mime = MimeTypeMap.getSingleton();
+            return mime.getMimeTypeFromExtension(extension);
+        }
+        return null;
     }
 
 }

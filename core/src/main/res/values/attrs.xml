@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="ExtendedView">
+    <declare-styleable name="ExtendedTextView">
         <attr name="fontName" format="string" />
+        <attr name="fontFormat" format="string" />
+        <attr name="required" format="boolean" />
+        <attr name="trimmed" format="boolean" />
+        <attr name="validEmail" format="boolean" />
+        <attr name="matchValueOf" format="reference|integer" />
+        <attr name="minLength" format="integer" />
     </declare-styleable>
 </resources>

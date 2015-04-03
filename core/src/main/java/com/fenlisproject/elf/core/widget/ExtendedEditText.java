@@ -1,5 +1,6 @@
 /*
 * Copyright (C) 2015 Steven Lewi
+* Copyright (C) 2006 The Android Open Source Project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,50 +17,144 @@
 
 package com.fenlisproject.elf.core.widget;
 
+
+/*
+ * This is supposed to be a *very* thin veneer over TextView.
+ * Do not make any changes here that do anything that a TextView
+ * with a key listener and a movement method wouldn't do!
+ */
+
+import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Typeface;
+import android.os.Build;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.Selection;
+import android.text.Spannable;
+import android.text.TextUtils;
+import android.text.method.ArrowKeyMovementMethod;
+import android.text.method.MovementMethod;
 import android.util.AttributeSet;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.EditText;
 
-import com.fenlisproject.elf.R;
-import com.fenlisproject.elf.core.base.BaseApplication;
-import com.fenlisproject.elf.core.data.MemoryStorage;
-
-public class ExtendedEditText extends EditText {
+/**
+ * EditText is a thin veneer over TextView that configures itself
+ * to be editable.
+ * <p/>
+ * <p>See the <a href="{@docRoot}guide/topics/ui/controls/text.html">Text Fields</a>
+ * guide.</p>
+ * <p/>
+ * <b>XML attributes</b>
+ * <p/>
+ * See {@link android.R.styleable#EditText EditText Attributes},
+ * {@link android.R.styleable#TextView TextView Attributes},
+ * {@link android.R.styleable#View View Attributes}
+ */
+public class ExtendedEditText extends ExtendedTextView {
 
     public ExtendedEditText(Context context) {
-        super(context);
-    }
-
-    public ExtendedEditText(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        initFontFace(context, attrs);
+        this(context, null);
     }
 
     public ExtendedEditText(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initFontFace(context, attrs);
+        this(context, attrs, android.R.attr.editTextStyle);
     }
 
-    public void initFontFace(Context context, AttributeSet attrs) {
-        MemoryStorage<Typeface> fontCache = ((BaseApplication) context.getApplicationContext())
-                .getFontCache();
-        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ExtendedView, 0, 0);
-        try {
-            String fontName = ta.getString(R.styleable.ExtendedView_fontName);
-            if (fontName != null) {
-                Typeface tf = fontCache.get(fontName);
-                if (tf == null) {
-                    tf = Typeface.createFromAsset(context.getAssets(), "fonts/" + fontName + ".ttf");
-                    fontCache.put(fontName, tf);
+    public ExtendedEditText(Context context, AttributeSet attrs, int defStyleAttr) {
+        this(context, attrs, defStyleAttr, 0);
+    }
+
+    public ExtendedEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    @Override
+    protected boolean getDefaultEditable() {
+        return true;
+    }
+
+    @Override
+    protected MovementMethod getDefaultMovementMethod() {
+        return ArrowKeyMovementMethod.getInstance();
+    }
+
+    @Override
+    public Editable getText() {
+        return (Editable) super.getText();
+    }
+
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        super.setText(text, BufferType.EDITABLE);
+    }
+
+    /**
+     * Convenience for {@link Selection#setSelection(Spannable, int, int)}.
+     */
+    public void setSelection(int start, int stop) {
+        Selection.setSelection(getText(), start, stop);
+    }
+
+    /**
+     * Convenience for {@link Selection#setSelection(Spannable, int)}.
+     */
+    public void setSelection(int index) {
+        Selection.setSelection(getText(), index);
+    }
+
+    /**
+     * Convenience for {@link Selection#selectAll}.
+     */
+    public void selectAll() {
+        Selection.selectAll(getText());
+    }
+
+    /**
+     * Convenience for {@link Selection#extendSelection}.
+     */
+    public void extendSelection(int index) {
+        Selection.extendSelection(getText(), index);
+    }
+
+    @Override
+    public void setEllipsize(TextUtils.TruncateAt ellipsis) {
+        if (ellipsis == TextUtils.TruncateAt.MARQUEE) {
+            throw new IllegalArgumentException("EditText cannot use the ellipsize mode "
+                    + "TextUtils.TruncateAt.MARQUEE");
+        }
+        super.setEllipsize(ellipsis);
+    }
+
+    @Override
+    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
+        super.onInitializeAccessibilityEvent(event);
+        event.setClassName(EditText.class.getName());
+    }
+
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    @Override
+    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+        super.onInitializeAccessibilityNodeInfo(info);
+        info.setClassName(EditText.class.getName());
+    }
+
+    @Override
+    public boolean performAccessibilityAction(int action, Bundle arguments) {
+        switch (action) {
+            case AccessibilityNodeInfo.ACTION_SET_TEXT: {
+                CharSequence text = (arguments != null) ? arguments.getCharSequence(
+                        AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE) : null;
+                setText(text);
+                if (text != null && text.length() > 0) {
+                    setSelection(text.length());
                 }
-                setTypeface(tf);
+                return true;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            ta.recycle();
+            default: {
+                return super.performAccessibilityAction(action, arguments);
+            }
         }
     }
 }
