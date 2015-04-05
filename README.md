@@ -28,8 +28,9 @@ dependencies {
 ```
 
 ## Basic Setup
-1. Extends BaseApllication
-First step to use this library is to Make your Application class extend BaseApllication.
+- Extends BaseApplication
+
+First step to use this library is to Make your Application class extend BaseApplication.
 ```java
 public class SampleApplication extends BaseApplication {
 
@@ -51,11 +52,13 @@ Don't forget change application name in your manifest
 </manifest>
 ```
 
-2. Extends BaseActivity
+- Extends BaseActivity
+
 In you want to utilize Binding feature, you must extends your Activity with BaseActivity.
 BaseActivity itself extends from ActionBarActivity which use Android Support Fragment (appcompatv7).
 Define content view by `@ContentView` annotation. It will call `setContentView` for you at Runtime.
 Method `onContentViewCreated` is called right before `onCreate` finish. You you can treat this method same as `onCreate` method. Do what you usually do in `onCreate` in this method.
+
 ```java
 @ContentView(R.layout.activity_main)
 public class MainActivity extends BaseActivity {
@@ -71,9 +74,11 @@ public class MainActivity extends BaseActivity {
 }
 ```
 
-3. Extends BaseFragment
+- Extends BaseFragment
+
 If you use Fragment, then you can extend your fragment with BaseFragment.
 And the other steps are same as when you use Activity.
+
 ```java
 @ContentView(R.layout.fragment_home)
 public class HomeFragment extends BaseFragment {
