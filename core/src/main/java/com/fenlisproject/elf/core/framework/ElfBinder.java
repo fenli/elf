@@ -115,45 +115,46 @@ public class ElfBinder {
                         intent = ((Fragment) receiver).getActivity().getIntent();
                     }
                     if (intent != null) {
-                        if (field.getType() == Boolean.class) {
+                        Class<?> type = field.getType();
+                        if (type == Boolean.class || type == boolean.class) {
                             field.set(receiver, intent.getBooleanExtra(intentExtra.value(), false));
-                        } else if (field.getType() == Byte.class) {
+                        } else if (type == Byte.class || type == byte.class) {
                             field.set(receiver, intent.getByteExtra(intentExtra.value(), (byte) 0));
-                        } else if (field.getType() == Character.class) {
+                        } else if (type == Character.class || type == char.class) {
                             field.set(receiver, intent.getCharExtra(intentExtra.value(), '\u0000'));
-                        } else if (field.getType() == Double.class) {
+                        } else if (type == Double.class || type == double.class) {
                             field.set(receiver, intent.getDoubleExtra(intentExtra.value(), 0.0d));
-                        } else if (field.getType() == Float.class) {
+                        } else if (type == Float.class || type == float.class) {
                             field.set(receiver, intent.getFloatExtra(intentExtra.value(), 0.0f));
-                        } else if (field.getType() == Integer.class) {
+                        } else if (type == Integer.class || type == int.class) {
                             field.set(receiver, intent.getIntExtra(intentExtra.value(), 0));
-                        } else if (field.getType() == Long.class) {
+                        } else if (type == Long.class || type == long.class) {
                             field.set(receiver, intent.getLongExtra(intentExtra.value(), 0L));
-                        } else if (field.getType() == Short.class) {
+                        } else if (type == Short.class || type == short.class) {
                             field.set(receiver, intent.getShortExtra(intentExtra.value(), (short) 0));
-                        } else if (field.getType() == String.class) {
+                        } else if (type == String.class) {
                             field.set(receiver, intent.getStringExtra(intentExtra.value()));
-                        } else if (field.getType() == Boolean[].class) {
+                        } else if (type == Boolean[].class || type == boolean[].class) {
                             field.set(receiver, intent.getBooleanArrayExtra(intentExtra.value()));
-                        } else if (field.getType() == Byte[].class) {
+                        } else if (type == Byte[].class || type == byte[].class) {
                             field.set(receiver, intent.getByteArrayExtra(intentExtra.value()));
-                        } else if (field.getType() == Character[].class) {
+                        } else if (type == Character[].class || type == char[].class) {
                             field.set(receiver, intent.getCharArrayExtra(intentExtra.value()));
-                        } else if (field.getType() == Double[].class) {
+                        } else if (type == Double[].class || type == double[].class) {
                             field.set(receiver, intent.getDoubleArrayExtra(intentExtra.value()));
-                        } else if (field.getType() == Float[].class) {
+                        } else if (type == Float[].class || type == float[].class) {
                             field.set(receiver, intent.getFloatArrayExtra(intentExtra.value()));
-                        } else if (field.getType() == Integer[].class) {
+                        } else if (type == Integer[].class || type == int[].class) {
                             field.set(receiver, intent.getIntArrayExtra(intentExtra.value()));
-                        } else if (field.getType() == Long[].class) {
+                        } else if (type == Long[].class || type == long[].class) {
                             field.set(receiver, intent.getLongArrayExtra(intentExtra.value()));
-                        } else if (field.getType() == Short[].class) {
+                        } else if (type == Short[].class || type == short[].class) {
                             field.set(receiver, intent.getShortArrayExtra(intentExtra.value()));
-                        } else if (field.getType() == String[].class) {
+                        } else if (type == String[].class) {
                             field.set(receiver, intent.getStringArrayExtra(intentExtra.value()));
-                        } else if (field.getType() == Serializable.class) {
+                        } else if (type == Serializable.class) {
                             field.set(receiver, intent.getSerializableExtra(intentExtra.value()));
-                        } else if (field.getType() == Bundle.class) {
+                        } else if (type == Bundle.class) {
                             field.set(receiver, intent.getBundleExtra(intentExtra.value()));
                         }
                     }
@@ -173,45 +174,46 @@ public class ElfBinder {
                 try {
                     Bundle bundle = receiver.getArguments();
                     if (bundle != null) {
-                        if (field.getType() == Boolean.class) {
+                        Class<?> type = field.getType();
+                        if (type == Boolean.class || type == boolean.class) {
                             field.set(receiver, bundle.getBoolean(fragmentArgument.value()));
-                        } else if (field.getType() == Byte.class) {
+                        } else if (type == Byte.class || type == byte.class) {
                             field.set(receiver, bundle.getByte(fragmentArgument.value()));
-                        } else if (field.getType() == Character.class) {
+                        } else if (type == Character.class || type == char.class) {
                             field.set(receiver, bundle.getChar(fragmentArgument.value()));
-                        } else if (field.getType() == Double.class) {
+                        } else if (type == Double.class || type == double.class) {
                             field.set(receiver, bundle.getDouble(fragmentArgument.value()));
-                        } else if (field.getType() == Float.class) {
+                        } else if (type == Float.class || type == float.class) {
                             field.set(receiver, bundle.getFloat(fragmentArgument.value()));
-                        } else if (field.getType() == Integer.class) {
+                        } else if (type == Integer.class || type == int.class) {
                             field.set(receiver, bundle.getInt(fragmentArgument.value()));
-                        } else if (field.getType() == Long.class) {
+                        } else if (type == Long.class || type == long.class) {
                             field.set(receiver, bundle.getLong(fragmentArgument.value()));
-                        } else if (field.getType() == Short.class) {
+                        } else if (type == Short.class || type == short.class) {
                             field.set(receiver, bundle.getShort(fragmentArgument.value()));
-                        } else if (field.getType() == String.class) {
+                        } else if (type == String.class) {
                             field.set(receiver, bundle.getString(fragmentArgument.value()));
-                        } else if (field.getType() == Boolean[].class) {
+                        } else if (type == Boolean[].class || type == boolean[].class) {
                             field.set(receiver, bundle.getBooleanArray(fragmentArgument.value()));
-                        } else if (field.getType() == Byte[].class) {
+                        } else if (type == Byte[].class || type == byte[].class) {
                             field.set(receiver, bundle.getByteArray(fragmentArgument.value()));
-                        } else if (field.getType() == Character[].class) {
+                        } else if (type == Character[].class || type == char[].class) {
                             field.set(receiver, bundle.getCharArray(fragmentArgument.value()));
-                        } else if (field.getType() == Double[].class) {
+                        } else if (type == Double[].class || type == double[].class) {
                             field.set(receiver, bundle.getDoubleArray(fragmentArgument.value()));
-                        } else if (field.getType() == Float[].class) {
+                        } else if (type == Float[].class || type == float[].class) {
                             field.set(receiver, bundle.getFloatArray(fragmentArgument.value()));
-                        } else if (field.getType() == Integer[].class) {
+                        } else if (type == Integer[].class || type == int[].class) {
                             field.set(receiver, bundle.getIntArray(fragmentArgument.value()));
-                        } else if (field.getType() == Long[].class) {
+                        } else if (type == Long[].class || type == long[].class) {
                             field.set(receiver, bundle.getLongArray(fragmentArgument.value()));
-                        } else if (field.getType() == Short[].class) {
+                        } else if (type == Short[].class || type == short[].class) {
                             field.set(receiver, bundle.getShortArray(fragmentArgument.value()));
-                        } else if (field.getType() == String[].class) {
+                        } else if (type == String[].class) {
                             field.set(receiver, bundle.getStringArray(fragmentArgument.value()));
-                        } else if (field.getType() == Serializable.class) {
+                        } else if (type == Serializable.class) {
                             field.set(receiver, bundle.getSerializable(fragmentArgument.value()));
-                        } else if (field.getType() == Bundle.class) {
+                        } else if (type == Bundle.class) {
                             field.set(receiver, bundle.getBundle(fragmentArgument.value()));
                         }
                     }
