@@ -1,4 +1,4 @@
-# ![Logo](https://github.com/fenli/elf/blob/master/core/src/main/res/mipmap-mdpi/ic_launcher.png) Elf Framework
+# ![Logo](https://github.com/fenli/elf/blob/master/sample/src/main/res/mipmap-mdpi/ic_launcher.png) Elf Framework
 Efl is an Android Framework to simplify the android development process.
 It has an annotation feature to bind every views, event listeners, animations, intent extras, etc on your Activities, Fragments and Dialogs.
 
