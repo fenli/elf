@@ -1,6 +1,6 @@
 /*
 * Copyright (C) 2015 Steven Lewi
-* Copyright (C) 2006 The Android Open Source Project
+* Copyright (C) 2014 The Android Open Source Project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ package com.fenlisproject.elf.core.widget;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -100,6 +102,13 @@ import android.widget.RemoteViews;
 @RemoteViews.RemoteView
 public class ExtendedButton extends ExtendedTextView {
 
+    private static final int[] TINT_ATTRS = {
+            android.R.attr.background,
+            android.R.attr.textAppearance
+    };
+
+    private final TintManager mTintManager;
+
     public ExtendedButton(Context context) {
         this(context, null);
     }
@@ -109,11 +118,17 @@ public class ExtendedButton extends ExtendedTextView {
     }
 
     public ExtendedButton(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
+        super(context, attrs, defStyleAttr);
+        TintTypedArray style = TintTypedArray.obtainStyledAttributes(
+                context, attrs, TINT_ATTRS, defStyleAttr, 0);
+        if (style.hasValue(0)) {
+            this.setBackgroundDrawable(style.getDrawable(0));
+        }
+        this.mTintManager = style.getTintManager();
     }
 
-    public ExtendedButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+    public void setBackgroundResource(int resid) {
+        this.setBackgroundDrawable(this.mTintManager.getDrawable(resid));
     }
 
     @Override

@@ -16,12 +16,11 @@
 
 package com.fenlisproject.elf.core.widget;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
-import android.os.Build;
+import android.support.v7.internal.widget.CompatTextView;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -38,7 +37,7 @@ import com.fenlisproject.elf.core.validator.rule.ValidEmail;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExtendedTextView extends TextView implements FontFace, ExtendedAttributes {
+public class ExtendedTextView extends CompatTextView implements FontFace, ExtendedAttributes {
 
     private String mFontName;
     private String mFontFormat;
@@ -49,39 +48,33 @@ public class ExtendedTextView extends TextView implements FontFace, ExtendedAttr
     private int mMatchValueOf;
 
     public ExtendedTextView(Context context) {
-        super(context);
-        initExtendedAttributes(null);
+        this(context, null);
+    }
+
+    public ExtendedTextView(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
     }
 
     public ExtendedTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        initExtendedAttributes(attrs);
-    }
-
-    public ExtendedTextView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initExtendedAttributes(attrs);
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ExtendedTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        initExtendedAttributes(attrs);
+        if (!isInEditMode()) {
+            initExtendedAttributes(attrs);
+        }
     }
 
     public void initExtendedAttributes(AttributeSet attrs) {
         if (getContext().getApplicationContext() instanceof BaseApplication) {
             if (attrs != null) {
-                TypedArray ta = getContext().obtainStyledAttributes(
+                TypedArray style = getContext().obtainStyledAttributes(
                         attrs, R.styleable.ExtendedTextView, 0, 0);
-                String fontName = ta.getString(R.styleable.ExtendedTextView_fontName);
-                String fontFormat = ta.getString(R.styleable.ExtendedTextView_fontFormat);
-                isRequired = ta.getBoolean(R.styleable.ExtendedTextView_required, false);
-                isTrimmed = ta.getBoolean(R.styleable.ExtendedTextView_trimmed, false);
-                mustValidEmail = ta.getBoolean(R.styleable.ExtendedTextView_validEmail, false);
-                mMinLength = ta.getInteger(R.styleable.ExtendedTextView_minLength, 0);
-                mMatchValueOf = ta.getResourceId(R.styleable.ExtendedTextView_matchValueOf, 0);
-                ta.recycle();
+                String fontName = style.getString(R.styleable.ExtendedTextView_fontName);
+                String fontFormat = style.getString(R.styleable.ExtendedTextView_fontFormat);
+                isRequired = style.getBoolean(R.styleable.ExtendedTextView_required, false);
+                isTrimmed = style.getBoolean(R.styleable.ExtendedTextView_trimmed, false);
+                mustValidEmail = style.getBoolean(R.styleable.ExtendedTextView_validEmail, false);
+                mMinLength = style.getInteger(R.styleable.ExtendedTextView_minLength, 0);
+                mMatchValueOf = style.getResourceId(R.styleable.ExtendedTextView_matchValueOf, 0);
+                style.recycle();
                 setFontFace(fontName, fontFormat != null ? fontFormat : FORMAT_TTF);
             } else {
                 isRequired = false;

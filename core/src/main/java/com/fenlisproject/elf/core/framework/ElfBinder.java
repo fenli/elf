@@ -152,7 +152,7 @@ public class ElfBinder {
                             field.set(receiver, intent.getShortArrayExtra(intentExtra.value()));
                         } else if (type == String[].class) {
                             field.set(receiver, intent.getStringArrayExtra(intentExtra.value()));
-                        } else if (type == Serializable.class) {
+                        } else if (Serializable.class.isAssignableFrom(type)) {
                             field.set(receiver, intent.getSerializableExtra(intentExtra.value()));
                         } else if (type == Bundle.class) {
                             field.set(receiver, intent.getBundleExtra(intentExtra.value()));
@@ -211,7 +211,7 @@ public class ElfBinder {
                             field.set(receiver, bundle.getShortArray(fragmentArgument.value()));
                         } else if (type == String[].class) {
                             field.set(receiver, bundle.getStringArray(fragmentArgument.value()));
-                        } else if (type == Serializable.class) {
+                        } else if (Serializable.class.isAssignableFrom(type)) {
                             field.set(receiver, bundle.getSerializable(fragmentArgument.value()));
                         } else if (type == Bundle.class) {
                             field.set(receiver, bundle.getBundle(fragmentArgument.value()));

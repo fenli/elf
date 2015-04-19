@@ -1,6 +1,6 @@
 /*
 * Copyright (C) 2015 Steven Lewi
-* Copyright (C) 2006 The Android Open Source Project
+* Copyright (C) 2014 The Android Open Source Project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -54,6 +55,10 @@ import android.widget.EditText;
  */
 public class ExtendedEditText extends ExtendedTextView {
 
+    private static final int[] TINT_ATTRS = {
+            android.R.attr.background
+    };
+
     public ExtendedEditText(Context context) {
         this(context, null);
     }
@@ -63,11 +68,11 @@ public class ExtendedEditText extends ExtendedTextView {
     }
 
     public ExtendedEditText(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
-    }
-
-    public ExtendedEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs, defStyleAttr);
+        TintTypedArray style = TintTypedArray.obtainStyledAttributes(
+                context, attrs, TINT_ATTRS, defStyleAttr, 0);
+        this.setBackgroundDrawable(style.getDrawable(0));
+        style.recycle();
     }
 
     @Override
