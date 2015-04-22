@@ -7,7 +7,7 @@ It has an annotation feature to bind every views, event listeners, animations, i
 - Network Libs (Simple, Lightweight, Support Multipart)
 - Common Utils (MD5, File Utils, etc)
 - Simple Session Manager (Object Caching)
-- Extended Widget (TextView, EditText, Button)
+- Extended Widget (TextView, EditText, Button, Checkbox, RadioButton)
 - Form Validation
 - Font Cache
 
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.fenlisproject.elf:core:0.1.5'
+    compile 'com.fenlisproject.elf:core:0.1.6'
 }
 ```
 
