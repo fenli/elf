@@ -223,7 +223,10 @@ public class HttpRequest {
                         request.getHttpURLConnection()
                                 .setRequestProperty(header.getName(), header.getValue());
                     }
-                    if (mRequestMethod == RequestMethod.POST && mFormData.size() > 0) {
+                    boolean canContainsBody = mRequestMethod == RequestMethod.POST
+                            || mRequestMethod == RequestMethod.PUT
+                            || mRequestMethod == RequestMethod.DELETE;
+                    if (canContainsBody && mFormData.size() > 0) {
                         request.getHttpURLConnection().setRequestProperty(
                                 "Content-Type",
                                 "multipart/form-data; boundary=" + BOUNDARY);

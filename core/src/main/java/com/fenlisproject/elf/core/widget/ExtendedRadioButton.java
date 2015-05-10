@@ -3,14 +3,14 @@ package com.fenlisproject.elf.core.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
-import android.support.v7.internal.widget.TintRadioButton;
+import android.support.v7.widget.AppCompatRadioButton;
 import android.util.AttributeSet;
 
 import com.fenlisproject.elf.R;
 import com.fenlisproject.elf.core.base.BaseApplication;
 import com.fenlisproject.elf.core.data.MemoryStorage;
 
-public class ExtendedRadioButton extends TintRadioButton implements FontFace, ExtendedAttributes {
+public class ExtendedRadioButton extends AppCompatRadioButton implements FontFace, ExtendedAttributes {
 
     private String mFontName;
     private String mFontFormat;

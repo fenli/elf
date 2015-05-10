@@ -20,7 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
-import android.support.v7.internal.widget.CompatTextView;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -37,7 +37,7 @@ import com.fenlisproject.elf.core.validator.rule.ValidEmail;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExtendedTextView extends CompatTextView implements FontFace, ExtendedAttributes {
+public class ExtendedTextView extends AppCompatTextView implements FontFace, ExtendedAttributes {
 
     private String mFontName;
     private String mFontFormat;

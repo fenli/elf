@@ -3,14 +3,14 @@ package com.fenlisproject.elf.core.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
-import android.support.v7.internal.widget.TintCheckBox;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
 
 import com.fenlisproject.elf.R;
 import com.fenlisproject.elf.core.base.BaseApplication;
 import com.fenlisproject.elf.core.data.MemoryStorage;
 
-public class ExtendedCheckBox extends TintCheckBox implements FontFace, ExtendedAttributes {
+public class ExtendedCheckBox extends AppCompatCheckBox implements FontFace, ExtendedAttributes {
 
     private String mFontName;
     private String mFontFormat;
