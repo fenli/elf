@@ -16,6 +16,7 @@
 
 package com.fenlisproject.elf.core.data;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.CursorWindow;
@@ -30,7 +31,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SQLiteDAO {
+@SuppressLint("NewApi")
+public class SQLiteDAO implements AutoCloseable {
 
     private final int FIELD_TYPE_NULL = 0;
     private final int FIELD_TYPE_INTEGER = 1;
@@ -191,10 +193,6 @@ public class SQLiteDAO {
         }
     }
 
-    public void closeDatabase() {
-        db.close();
-    }
-
     private int getType(Cursor cursor, int columnIndex) {
         SQLiteCursor sqLiteCursor = (SQLiteCursor) cursor;
         CursorWindow cursorWindow = sqLiteCursor.getWindow();
@@ -212,5 +210,10 @@ public class SQLiteDAO {
             type = FIELD_TYPE_BLOB;
         }
         return type;
+    }
+
+    @Override
+    public void close() throws Exception {
+        db.close();
     }
 }

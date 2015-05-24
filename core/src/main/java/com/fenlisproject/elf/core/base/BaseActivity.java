@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -31,23 +31,24 @@ import android.widget.CompoundButton;
 import com.fenlisproject.elf.core.annotation.ContentView;
 import com.fenlisproject.elf.core.annotation.OptionMenu;
 import com.fenlisproject.elf.core.config.AppEnvironment;
-import com.fenlisproject.elf.core.data.PersistentStorage;
+import com.fenlisproject.elf.core.data.PreferencesStorage;
+import com.fenlisproject.elf.core.data.SessionStorage;
 import com.fenlisproject.elf.core.event.CommonFragmentEventListener;
 import com.fenlisproject.elf.core.framework.ElfBinder;
 import com.fenlisproject.elf.core.framework.ElfCaller;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class BaseActivity extends ActionBarActivity implements BaseEventListener, BaseTask {
+public abstract class BaseActivity extends AppCompatActivity implements BaseEventListener, BaseTask {
 
-    private HashMap<Integer, Fragment> mActiveFragments;
+    private ConcurrentHashMap<Integer, Fragment> mActiveFragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mActiveFragments = new HashMap<>();
+        mActiveFragments = new ConcurrentHashMap<>();
         ContentView contentView = getClass().getAnnotation(ContentView.class);
         if (contentView != null) {
             setContentView(contentView.value());
@@ -208,7 +209,12 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseEven
                 ((BaseApplication) getApplicationContext()).getAppEnvironment() : null;
     }
 
-    public PersistentStorage getDefaultSessionStorage() {
+    public PreferencesStorage getDefaultPreferencesStorage() {
+        return getApplicationContext() instanceof BaseApplication ?
+                ((BaseApplication) getApplicationContext()).getDefaultPreferencesStorage() : null;
+    }
+
+    public SessionStorage getDefaultSessionStorage() {
         return getApplicationContext() instanceof BaseApplication ?
                 ((BaseApplication) getApplicationContext()).getDefaultSessionStorage() : null;
     }

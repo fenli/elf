@@ -14,12 +14,14 @@
 * limitations under the License.
 */
 
-package com.fenlisproject.elf.core.base;
+package com.fenlisproject.elf.core.io;
 
-interface BaseTask {
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-    void runDelayed(final String tag, long delayMilis, final Object... args);
+public interface KeyBasedObjectIO {
+    ObjectInput getObjectInput(String key) throws IOException;
 
-    void runOnUiThread(final String tag, final Object... args);
-
+    ObjectOutput getObjectOutput(String key) throws IOException;
 }

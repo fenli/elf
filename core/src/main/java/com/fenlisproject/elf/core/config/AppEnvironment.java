@@ -25,10 +25,11 @@ public class AppEnvironment {
 
     /* Private Directory */
     private final String mPrivateFilesDirectory;
-    private final String mPrivateImagesDirectory;
     private final String mPrivateDatabaseDirectory;
+    private final String mPrivateImagesDirectory;
     private final String mPrivateCacheDirectory;
     private final String mPrivateTempDirectory;
+    private final String mSessionDirectory;
 
     /* Public Directory */
     private String mPublicFilesDirectory;
@@ -39,11 +40,13 @@ public class AppEnvironment {
 
     public AppEnvironment(Context context) {
         mPrivateFilesDirectory = context.getFilesDir().getAbsolutePath();
+        mSessionDirectory = mPrivateFilesDirectory + "/session";
         mPrivateDatabaseDirectory = mPrivateFilesDirectory.replaceAll("files$", "databases");
         mPrivateImagesDirectory = mPrivateFilesDirectory + "/images";
         mPrivateCacheDirectory = context.getCacheDir().getAbsolutePath();
         mPrivateTempDirectory = mPrivateFilesDirectory + "/tmp";
-        FileUtils.createDirsIfNotExist(mPrivateImagesDirectory);
+        FileUtils.createDirsIfNotExist(mSessionDirectory);
+        FileUtils.createDirsIfNotExist(mPrivateTempDirectory);
         FileUtils.createDirsIfNotExist(mPrivateTempDirectory);
 
         if (isPublicDirectoryAvailable() && context.getExternalFilesDir(null) != null) {
@@ -67,6 +70,10 @@ public class AppEnvironment {
 
     public String getPublicFilesDirectory() {
         return mPublicFilesDirectory;
+    }
+
+    public String getSessionDirectory() {
+        return mSessionDirectory;
     }
 
     public String getPrivateImagesDirectory() {

@@ -34,7 +34,8 @@ import android.widget.CompoundButton;
 import com.fenlisproject.elf.core.annotation.ContentView;
 import com.fenlisproject.elf.core.annotation.OptionMenu;
 import com.fenlisproject.elf.core.config.AppEnvironment;
-import com.fenlisproject.elf.core.data.PersistentStorage;
+import com.fenlisproject.elf.core.data.PreferencesStorage;
+import com.fenlisproject.elf.core.data.SessionStorage;
 import com.fenlisproject.elf.core.event.CommonActivityEventListener;
 import com.fenlisproject.elf.core.framework.ElfBinder;
 import com.fenlisproject.elf.core.framework.ElfCaller;
@@ -181,7 +182,12 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
                 ((BaseActivity) getActivity()).getAppEnvironment() : null;
     }
 
-    public PersistentStorage getDefaultSessionStorage() {
+    public PreferencesStorage getDefaultPreferencesStorage() {
+        return getActivity() instanceof BaseActivity ?
+                ((BaseActivity) getActivity()).getDefaultPreferencesStorage() : null;
+    }
+
+    public SessionStorage getDefaultSessionStorage() {
         return getActivity() instanceof BaseActivity ?
                 ((BaseActivity) getActivity()).getDefaultSessionStorage() : null;
     }

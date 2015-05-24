@@ -26,8 +26,15 @@ package com.fenlisproject.elf.core.widget;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.view.TintableBackgroundView;
+import android.support.v7.internal.widget.TintContextWrapper;
+import android.support.v7.internal.widget.TintInfo;
+import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.text.Editable;
 import android.text.Selection;
@@ -53,11 +60,13 @@ import android.widget.EditText;
  * {@link android.R.styleable#TextView TextView Attributes},
  * {@link android.R.styleable#View View Attributes}
  */
-public class ExtendedEditText extends ExtendedTextView {
+public class ExtendedEditText extends ExtendedTextView implements TintableBackgroundView {
 
     private static final int[] TINT_ATTRS = {
             android.R.attr.background
     };
+
+    private TintInfo mBackgroundTint;
 
     public ExtendedEditText(Context context) {
         this(context, null);
@@ -68,11 +77,88 @@ public class ExtendedEditText extends ExtendedTextView {
     }
 
     public ExtendedEditText(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        TintTypedArray style = TintTypedArray.obtainStyledAttributes(
-                context, attrs, TINT_ATTRS, defStyleAttr, 0);
-        this.setBackgroundDrawable(style.getDrawable(0));
-        style.recycle();
+        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
+        if (TintManager.SHOULD_BE_USED) {
+            TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
+                    TINT_ATTRS, defStyleAttr, 0);
+            if (a.hasValue(0)) {
+                ColorStateList tint = a.getTintManager().getTintList(a.getResourceId(0, -1));
+                if (tint != null) {
+                    setSupportBackgroundTintList(tint);
+                }
+            }
+            a.recycle();
+        }
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.view.ViewCompat#setBackgroundTintList(android.view.View,
+     * android.content.res.ColorStateList)}
+     *
+     * @hide
+     */
+    @Override
+    public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
+        if (mBackgroundTint == null) {
+            mBackgroundTint = new TintInfo();
+        }
+        mBackgroundTint.mTintList = tint;
+        mBackgroundTint.mHasTintList = true;
+
+        applySupportBackgroundTint();
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.view.ViewCompat#getBackgroundTintList(android.view.View)}
+     *
+     * @hide
+     */
+    @Nullable
+    @Override
+    public ColorStateList getSupportBackgroundTintList() {
+        return mBackgroundTint != null ? mBackgroundTint.mTintList : null;
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.view.ViewCompat#setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode)}
+     *
+     * @hide
+     */
+    @Override
+    public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
+        if (mBackgroundTint == null) {
+            mBackgroundTint = new TintInfo();
+        }
+        mBackgroundTint.mTintMode = tintMode;
+        mBackgroundTint.mHasTintMode = true;
+
+        applySupportBackgroundTint();
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.view.ViewCompat#getBackgroundTintMode(android.view.View)}
+     *
+     * @hide
+     */
+    @Override
+    public PorterDuff.Mode getSupportBackgroundTintMode() {
+        return mBackgroundTint != null ? mBackgroundTint.mTintMode : null;
+    }
+
+    @Override
+    protected void drawableStateChanged() {
+        super.drawableStateChanged();
+        applySupportBackgroundTint();
+    }
+
+    private void applySupportBackgroundTint() {
+        if (getBackground() != null && mBackgroundTint != null) {
+            TintManager.tintViewBackground(this, mBackgroundTint);
+        }
     }
 
     @Override

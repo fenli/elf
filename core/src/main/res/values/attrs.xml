@@ -9,4 +9,15 @@
         <attr name="matchValueOf" format="reference|integer" />
         <attr name="minLength" format="integer" />
     </declare-styleable>
+    <declare-styleable name="AppCompatTextView">
+        <attr name="textAllCaps" format="reference|boolean" />
+        <attr name="android:textAppearance" />
+    </declare-styleable>
+    <declare-styleable name="TextAppearance">
+        <attr name="android:textSize" />
+        <attr name="android:textColor" />
+        <attr name="android:textStyle" />
+        <attr name="android:typeface" />
+        <attr name="textAllCaps" />
+    </declare-styleable>
 </resources>

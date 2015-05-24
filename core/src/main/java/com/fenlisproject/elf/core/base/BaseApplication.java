@@ -22,19 +22,24 @@ import android.graphics.Typeface;
 import com.fenlisproject.elf.core.config.AppEnvironment;
 import com.fenlisproject.elf.core.config.Configs;
 import com.fenlisproject.elf.core.data.MemoryStorage;
-import com.fenlisproject.elf.core.data.PersistentStorage;
+import com.fenlisproject.elf.core.data.PreferencesStorage;
+import com.fenlisproject.elf.core.data.SessionStorage;
+
+import java.io.Serializable;
 
 public class BaseApplication extends Application {
 
     private AppEnvironment mAppEnvironment;
-    private PersistentStorage mDefaultSessionStorage;
+    private PreferencesStorage mDefaultPreferencesStorage;
+    private SessionStorage mDefaultSessionStorage;
     private MemoryStorage<Typeface> fontCache;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mAppEnvironment = new AppEnvironment(this);
-        mDefaultSessionStorage = new PersistentStorage(this, Configs.DEFAULT_SESSION_BUNDLE_NAME);
+        mDefaultPreferencesStorage = new PreferencesStorage(this, Configs.DEFAULT_PREFERENCES_NAME);
+        mDefaultSessionStorage = new SessionStorage(this, mAppEnvironment.getSessionDirectory());
         fontCache = new MemoryStorage<>(Configs.DEFAULT_FONT_CACHE_SIZE);
     }
 
@@ -42,7 +47,11 @@ public class BaseApplication extends Application {
         return mAppEnvironment;
     }
 
-    public PersistentStorage getDefaultSessionStorage() {
+    public PreferencesStorage getDefaultPreferencesStorage() {
+        return mDefaultPreferencesStorage;
+    }
+
+    public SessionStorage getDefaultSessionStorage() {
         return mDefaultSessionStorage;
     }
 
