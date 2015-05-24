@@ -4,9 +4,11 @@ It has an annotation feature to bind every views, event listeners, animations, i
 
 ## Current Features
 - Annotation Based Binding (View, Listener, Animation, Intent Extra, etc)
-- Network Libs (Simple, Lightweight, Support Multipart)
+- Network Libs (Simple, Lightweight, Support Multipart Http Request)
 - Common Utils (MD5, File Utils, etc)
-- Simple Session Manager (Object Caching)
+- Preferences Manager
+- Simple Session Storage (Object Caching)
+- Secure Session Storage (Encrypted)
 - Extended Widget (TextView, EditText, Button, Checkbox, RadioButton)
 - Form Validation
 - Font Cache
@@ -23,7 +25,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.fenlisproject.elf:core:0.1.6'
+    compile 'com.fenlisproject.elf:core:0.2.0'
 }
 ```
 
