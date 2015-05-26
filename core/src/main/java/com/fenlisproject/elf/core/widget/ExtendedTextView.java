@@ -18,6 +18,7 @@ package com.fenlisproject.elf.core.widget;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.support.v7.widget.AppCompatTextView;
@@ -177,7 +178,8 @@ public class ExtendedTextView extends AppCompatTextView implements FontFace, Ext
             ));
         }
         if (mMatchValueOf != 0) {
-            TextView view = (TextView) ((Activity) getContext()).findViewById(mMatchValueOf);
+            ContextWrapper cw = (ContextWrapper) getContext();
+            TextView view = (TextView) ((Activity) cw.getBaseContext()).findViewById(mMatchValueOf);
             if (view != null) {
                 rules.add(new Match(
                         String.format(c.getString(R.string.match_validation_message), view.getHint()),
