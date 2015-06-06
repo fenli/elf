@@ -2,12 +2,12 @@ package com.fenlisproject.elf.core.net.entity;
 
 import java.io.File;
 
-public class FileFormData implements MultipartFormData {
+public class FileFormEntity implements MultipartFormEntity {
 
     private final String key;
     private final File value;
 
-    public FileFormData(String key, File value) {
+    public FileFormEntity(String key, File value) {
         this.key = key;
         this.value = value;
     }

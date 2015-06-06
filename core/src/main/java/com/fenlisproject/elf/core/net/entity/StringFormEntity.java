@@ -1,11 +1,11 @@
 package com.fenlisproject.elf.core.net.entity;
 
-public class StringFormData implements MultipartFormData {
+public class StringFormEntity implements MultipartFormEntity {
 
     private final String key;
     private final String value;
 
-    public StringFormData(String key, String value) {
+    public StringFormEntity(String key, String value) {
         this.key = key;
         this.value = value;
     }

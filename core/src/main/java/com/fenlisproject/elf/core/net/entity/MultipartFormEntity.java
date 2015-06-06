@@ -1,6 +1,6 @@
 package com.fenlisproject.elf.core.net.entity;
 
-public interface MultipartFormData {
+public interface MultipartFormEntity {
 
     String getKey();
 

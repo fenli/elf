@@ -19,30 +19,19 @@ package com.fenlisproject.elf.core.net;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.fenlisproject.elf.core.net.entity.FileFormData;
-import com.fenlisproject.elf.core.net.entity.MultipartFormData;
-import com.fenlisproject.elf.core.net.entity.StringFormData;
-import com.fenlisproject.elf.core.util.FileUtils;
+import com.fenlisproject.elf.core.util.URLUtils;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -110,18 +99,14 @@ public class HttpRequest {
 
         public static final int DEFAULT_CONNECTION_TIMEOUT = 12000;
         public static final int DEFAULT_READ_TIMEOUT = 30000;
-        public static final String CRLF = "\r\n";
-        public static final String TWO_HYPHENS = "--";
-        private static final String BOUNDARY = "ElfHttpRequestBoundary";
         private int mConnectionTimeout;
         private int mReadTimeout;
         private boolean isUseCache;
         private String mRequestUrl;
         private RequestMethod mRequestMethod;
-        private List<NameValuePair> mUrlParams;
-        private List<NameValuePair> mUrlEncodedFormData;
-        private List<MultipartFormData> mFormData;
         private List<NameValuePair> mHeaders;
+        private List<NameValuePair> mUrlParams;
+        private RequestBody mRequestBody;
         private boolean isForceUseCache;
         private int mRetryCount;
 
@@ -131,8 +116,6 @@ public class HttpRequest {
             this.isForceUseCache = false;
             this.mRequestMethod = RequestMethod.GET;
             this.mUrlParams = new ArrayList<>();
-            this.mUrlEncodedFormData = new ArrayList<>();
-            this.mFormData = new ArrayList<>();
             this.mHeaders = new ArrayList<>();
             this.mConnectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
             this.mReadTimeout = DEFAULT_READ_TIMEOUT;
@@ -149,19 +132,8 @@ public class HttpRequest {
             return this;
         }
 
-        public Builder addUrlEncodedFormData(String key, String value) {
-            this.mUrlEncodedFormData.add(new BasicNameValuePair(key, value));
-            return this;
-        }
-
-        public Builder addFormData(String key, String value) {
-            this.mFormData.add(new StringFormData(key, value));
-            return this;
-        }
-
-        public Builder addFormData(String key, File value) {
-            this.mFormData.add(new FileFormData(key, value));
-            return this;
+        public void setRequestBody(RequestBody requestBody) {
+            this.mRequestBody = requestBody;
         }
 
         public Builder setUseCache(boolean useCache) {
@@ -193,95 +165,13 @@ public class HttpRequest {
             this.mRetryCount = retryCount;
         }
 
-        private String generateUrlEncodedString(List<NameValuePair> params) {
-            StringBuilder result = new StringBuilder();
-            boolean first = true;
-            for (NameValuePair param : params) {
-                if (first) first = false;
-                else result.append("&");
-                try {
-                    result.append(URLEncoder.encode(param.getName(), "UTF-8"));
-                    result.append("=");
-                    result.append(URLEncoder.encode(param.getValue(), "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-            return result.toString();
-        }
-
         private String getFullPathRequestUrl() {
-            String queryString = generateUrlEncodedString(mUrlParams);
+            String queryString = URLUtils.generateUrlEncodedString(mUrlParams);
             if (queryString.length() > 0) {
                 return mRequestUrl + "?" + queryString;
             } else {
                 return mRequestUrl;
             }
-        }
-
-        private void writeUrlEncodedFormData(HttpRequest request) throws IOException {
-            request.getHttpURLConnection().setRequestProperty(
-                    "Content-Type", "application/x-www-form-urlencoded");
-            request.getHttpURLConnection().setDoInput(true);
-            request.getHttpURLConnection().setDoOutput(true);
-            OutputStream os = request.getHttpURLConnection().getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-            writer.write(generateUrlEncodedString(mUrlEncodedFormData));
-            writer.flush();
-            writer.close();
-            os.close();
-        }
-
-        private void writeFormData(HttpRequest request) throws IOException {
-            request.getHttpURLConnection().setRequestProperty(
-                    "Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-            request.getHttpURLConnection().setDoInput(true);
-            request.getHttpURLConnection().setDoOutput(true);
-            OutputStream os = request.getHttpURLConnection().getOutputStream();
-            DataOutputStream dos = new DataOutputStream(os);
-            for (MultipartFormData data : mFormData) {
-                if (data instanceof StringFormData) {
-                    StringFormData stringData = ((StringFormData) data);
-                    dos.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
-                    dos.writeBytes(String.format(
-                            "Content-Disposition: form-data; name=\"%s\"", stringData.getKey()
-                    ));
-                    dos.writeBytes(CRLF + CRLF);
-                    dos.writeBytes(stringData.getValue());
-                    dos.writeBytes(CRLF);
-                } else if (data instanceof FileFormData) {
-                    FileFormData fileData = ((FileFormData) data);
-                    if (fileData.getValue().exists()) {
-                        String mime = FileUtils.getMimeType(fileData.getValue());
-                        dos.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
-                        dos.writeBytes(String.format(
-                                "Content-Disposition: form-data; name=\"%s\"; filename=\"%s\"",
-                                fileData.getKey(),
-                                fileData.getValue().getName()
-                        ));
-                        if (mime != null) {
-                            dos.writeBytes(CRLF);
-                            dos.writeBytes(String.format("Content-Type: %s", mime));
-                        }
-                        dos.writeBytes(CRLF + CRLF);
-                        FileInputStream fis = new FileInputStream(fileData.getValue());
-                        byte[] buf = new byte[1024];
-                        try {
-                            int read;
-                            while ((read = fis.read(buf)) != -1) {
-                                dos.write(buf, 0, read);
-                            }
-                        } catch (IOException ioe) {
-                            ioe.printStackTrace();
-                        }
-                        dos.writeBytes(CRLF);
-                    }
-                }
-            }
-            dos.writeBytes(TWO_HYPHENS + BOUNDARY + TWO_HYPHENS);
-            dos.flush();
-            dos.close();
-            os.close();
         }
 
         public HttpRequest create() {
@@ -301,10 +191,8 @@ public class HttpRequest {
                         case POST:
                         case PUT:
                         case DELETE:
-                            if (mFormData.size() > 0) {
-                                writeFormData(request);
-                            } else if (mUrlEncodedFormData.size() > 0) {
-                                writeUrlEncodedFormData(request);
+                            if (mRequestBody != null) {
+                                mRequestBody.write(request);
                             }
                             break;
                     }
