@@ -53,11 +53,15 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseEven
         if (contentView != null) {
             setContentView(contentView.value());
             ElfBinder.bindView(this, null);
+            onBeforeBindEventListener();
             ElfBinder.bindEventListener(this, null);
         }
         ElfBinder.bindAnimation(this);
         ElfBinder.bindIntentExtra(this);
         onContentViewCreated();
+    }
+
+    protected void onBeforeBindEventListener() {
     }
 
     protected abstract void onContentViewCreated();

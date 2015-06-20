@@ -216,4 +216,14 @@ public class SQLiteDAO implements AutoCloseable {
     public void close() throws Exception {
         db.close();
     }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        try {
+            close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

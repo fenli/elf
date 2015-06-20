@@ -62,6 +62,7 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
         if (contentView != null) {
             mContentView = inflater.inflate(contentView.value(), container, false);
             ElfBinder.bindView(this, mContentView);
+            onBeforeBindEventListener();
             ElfBinder.bindEventListener(this, mContentView);
         }
         ElfBinder.bindAnimation(this);
@@ -83,6 +84,9 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return ElfCaller.callOnMenuItemSelectedListener(this, item.getItemId());
+    }
+
+    protected void onBeforeBindEventListener() {
     }
 
     protected abstract void onContentViewCreated();

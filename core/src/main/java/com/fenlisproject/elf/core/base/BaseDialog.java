@@ -16,8 +16,8 @@
 
 package com.fenlisproject.elf.core.base;
 
-import android.app.Dialog;
 import android.content.Context;
+import android.support.v7.app.AppCompatDialog;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -27,7 +27,7 @@ import com.fenlisproject.elf.core.annotation.ContentView;
 import com.fenlisproject.elf.core.framework.ElfBinder;
 import com.fenlisproject.elf.core.framework.ElfCaller;
 
-public abstract class BaseDialog extends Dialog implements BaseEventListener {
+public abstract class BaseDialog extends AppCompatDialog implements BaseEventListener {
 
     public BaseDialog(Context context) {
         super(context);
@@ -44,15 +44,19 @@ public abstract class BaseDialog extends Dialog implements BaseEventListener {
         initLayout();
     }
 
-    private void initLayout() {
+    protected void initLayout() {
         ContentView contentView = getClass().getAnnotation(ContentView.class);
         if (contentView != null) {
             setContentView(contentView.value());
         }
         ElfBinder.bindView(this, null);
+        onBeforeBindEventListener();
         ElfBinder.bindEventListener(this, null);
         ElfBinder.bindAnimation(this);
         onContentViewCreated();
+    }
+
+    protected void onBeforeBindEventListener() {
     }
 
     protected abstract void onContentViewCreated();

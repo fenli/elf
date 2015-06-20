@@ -43,32 +43,32 @@ public class MultipartFormData implements RequestBody {
         request.getHttpURLConnection().setDoOutput(true);
         OutputStream os = request.getHttpURLConnection().getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);
-        for (MultipartFormEntity data : mContent) {
-            if (data instanceof StringFormEntity) {
-                StringFormEntity stringData = ((StringFormEntity) data);
+        for (MultipartFormEntity entity : mContent) {
+            if (entity instanceof StringFormEntity) {
+                StringFormEntity stringEntity = ((StringFormEntity) entity);
                 dos.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
                 dos.writeBytes(String.format(
-                        "Content-Disposition: form-data; name=\"%s\"", stringData.getKey()
+                        "Content-Disposition: form-data; name=\"%s\"", stringEntity.getKey()
                 ));
                 dos.writeBytes(CRLF + CRLF);
-                dos.writeBytes(stringData.getValue());
+                dos.writeBytes(stringEntity.getValue());
                 dos.writeBytes(CRLF);
-            } else if (data instanceof FileFormEntity) {
-                FileFormEntity fileData = ((FileFormEntity) data);
-                if (fileData.getValue().exists()) {
-                    String mime = FileUtils.getMimeType(fileData.getValue());
+            } else if (entity instanceof FileFormEntity) {
+                FileFormEntity fileEntity = ((FileFormEntity) entity);
+                if (fileEntity.getValue().exists()) {
+                    String mime = FileUtils.getMimeType(fileEntity.getValue());
                     dos.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
                     dos.writeBytes(String.format(
                             "Content-Disposition: form-data; name=\"%s\"; filename=\"%s\"",
-                            fileData.getKey(),
-                            fileData.getValue().getName()
+                            fileEntity.getKey(),
+                            fileEntity.getValue().getName()
                     ));
                     if (mime != null) {
                         dos.writeBytes(CRLF);
                         dos.writeBytes(String.format("Content-Type: %s", mime));
                     }
                     dos.writeBytes(CRLF + CRLF);
-                    FileInputStream fis = new FileInputStream(fileData.getValue());
+                    FileInputStream fis = new FileInputStream(fileEntity.getValue());
                     byte[] buf = new byte[1024];
                     try {
                         int read;
