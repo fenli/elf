@@ -1,6 +1,7 @@
 # ![Logo](https://github.com/fenli/elf/blob/master/sample/src/main/res/mipmap-mdpi/ic_launcher.png) Elf Framework
-Efl is an Android Framework to simplify the android development process.
-It has an annotation feature to bind every views, event listeners, animations, intent extras, etc on your Activities, Fragments and Dialogs.
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fenlisproject.elf/core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fenlisproject.elf/core) 
+
+Efl is an Android Framework to simplify the android development process. It has many commonly used features like annotation binding, fast http connection wrappers, file utils, simple data caching, etc.
 
 ## Current Features
 - Annotation Based Binding (View, Listener, Animation, Intent Extra, etc)
