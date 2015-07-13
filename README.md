@@ -4,15 +4,14 @@
 Efl is an Android Framework to simplify the android development process. It has many commonly used features like annotation binding, fast http connection wrappers, file utils, simple data caching, etc.
 
 ## Current Features
-- Annotation Based Binding (View, Listener, Animation, Intent Extra, etc)
-- Network Libs (Simple, Lightweight, Support Multipart Http Request)
-- Common Utils (MD5, File Utils, etc)
+- Annotation Based Binding ([View](https://github.com/fenli/elf/wiki/View-Binding), [Event Listener](https://github.com/fenli/elf/wiki/Event-Listener-Binding), [Intent Extra](https://github.com/fenli/elf/wiki/Intent-Extra-Binding), etc)
+- Http Request (Simple, Lightweight, Support Multipart Request Body)
 - Preferences Manager
 - Simple Session Storage (Object Caching)
 - Secure Session Storage (Encrypted)
 - Extended Widget (TextView, EditText, Button, Checkbox, RadioButton)
 - Form Validation
-- Font Cache
+- Common Utils (MD5, File Utils, etc)
 
 ## Upcoming Features
 - Bitmap Cache
@@ -26,7 +25,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.fenlisproject.elf:core:0.2.0'
+    compile 'com.fenlisproject.elf:core:0.2.5'
 }
 ```
 
@@ -58,7 +57,7 @@ Don't forget change application name in your manifest
 - Extends BaseActivity
 
 In you want to utilize Binding feature, you must extends your Activity with BaseActivity.
-BaseActivity itself extends from ActionBarActivity which use Android Support Fragment (appcompatv7).
+BaseActivity itself extends from AppCompatActivity which use Android Support Fragment (appcompatv7).
 Define content view by `@ContentView` annotation. It will call `setContentView` for you at Runtime.
 Method `onContentViewCreated` is called right before `onCreate` finish. You you can treat this method same as `onCreate` method. Do what you usually do in `onCreate` in this method.
 
