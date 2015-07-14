@@ -6,12 +6,12 @@ Efl is an Android Framework to simplify the android development process. It has 
 ## Current Features
 - Annotation Based Binding ([View](https://github.com/fenli/elf/wiki/View-Binding), [Event Listener](https://github.com/fenli/elf/wiki/Event-Listener-Binding), [Intent Extra](https://github.com/fenli/elf/wiki/Intent-Extra-Binding), etc)
 - [Http Request](https://github.com/fenli/elf/wiki/Http-Request) (Simple, Lightweight, Support Multipart Request Body)
-- Preferences Manager
-- Simple Session Storage (Object Caching)
-- Secure Session Storage (Encrypted)
-- Extended Widget (TextView, EditText, Button, Checkbox, RadioButton)
-- Form Validation
-- Common Utils (MD5, File Utils, etc)
+- [Preferences Storage](https://github.com/fenli/elf/wiki/Preferences-Storage)
+- [Simple Session Storage](https://github.com/fenli/elf/wiki/Session-Storage) (Object Caching)
+- [Secure Session Storage](https://github.com/fenli/elf/wiki/Secure-Session-Storage) (Encrypted)
+- [Extended Widget](https://github.com/fenli/elf/wiki/Extended-Widget) (TextView, EditText, Button, Checkbox, RadioButton)
+- [Form Validation](https://github.com/fenli/elf/wiki/Form-Validation)
+- [Common Utils](https://github.com/fenli/elf/wiki/Common-Utils) (MD5, File Utils, etc)
 
 ## Upcoming Features
 - Bitmap Cache
