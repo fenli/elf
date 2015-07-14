@@ -5,7 +5,7 @@ Efl is an Android Framework to simplify the android development process. It has 
 
 ## Current Features
 - Annotation Based Binding ([View](https://github.com/fenli/elf/wiki/View-Binding), [Event Listener](https://github.com/fenli/elf/wiki/Event-Listener-Binding), [Intent Extra](https://github.com/fenli/elf/wiki/Intent-Extra-Binding), etc)
-- Http Request (Simple, Lightweight, Support Multipart Request Body)
+- [Http Request](https://github.com/fenli/elf/wiki/Http-Request) (Simple, Lightweight, Support Multipart Request Body)
 - Preferences Manager
 - Simple Session Storage (Object Caching)
 - Secure Session Storage (Encrypted)
