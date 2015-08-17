@@ -152,7 +152,10 @@ public class SQLiteDAO implements AutoCloseable {
                                 try {
                                     switch (columnType) {
                                         case Cursor.FIELD_TYPE_NULL:
+                                            field.set(item, null);
+                                            break;
                                         case Cursor.FIELD_TYPE_BLOB:
+                                            field.set(item, cursor.getBlob(columnIndex));
                                             break;
                                         case Cursor.FIELD_TYPE_INTEGER:
                                             field.set(item, cursor.getInt(columnIndex));

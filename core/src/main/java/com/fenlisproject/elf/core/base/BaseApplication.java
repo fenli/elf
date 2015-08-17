@@ -25,8 +25,6 @@ import com.fenlisproject.elf.core.data.MemoryStorage;
 import com.fenlisproject.elf.core.data.PreferencesStorage;
 import com.fenlisproject.elf.core.data.SessionStorage;
 
-import java.io.Serializable;
-
 public class BaseApplication extends Application {
 
     private AppEnvironment mAppEnvironment;

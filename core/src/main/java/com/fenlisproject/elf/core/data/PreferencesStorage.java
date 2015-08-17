@@ -40,20 +40,36 @@ public class PreferencesStorage implements DataStorage<Serializable> {
     }
 
     public <V extends Serializable> V get(String key, Class<V> vClass) {
+        if (vClass == String.class) {
+            return get(key, vClass, null);
+        } else if (vClass == Boolean.class || vClass == boolean.class) {
+            return get(key, vClass, false);
+        } else if (vClass == Float.class || vClass == float.class) {
+            return get(key, vClass, 0F);
+        } else if (vClass == Integer.class || vClass == int.class) {
+            return get(key, vClass, 0);
+        } else if (vClass == Long.class || vClass == long.class) {
+            return get(key, vClass, 0L);
+        } else {
+            throw new IllegalArgumentException("Class " + vClass + " is not supported");
+        }
+    }
+
+    public <V extends Serializable> V get(String key, Class<V> vClass, Object defaultValue) {
         synchronized (this) {
             String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
             if (vClass == String.class) {
-                return (V) mPreferences.getString(hashedKey, null);
-            } else if (vClass == Boolean.class) {
-                return (V) Boolean.valueOf(mPreferences.getBoolean(hashedKey, false));
-            } else if (vClass == Float.class) {
-                return (V) Float.valueOf(mPreferences.getFloat(hashedKey, 0F));
-            } else if (vClass == Integer.class) {
-                return (V) Integer.valueOf(mPreferences.getInt(hashedKey, 0));
-            } else if (vClass == Long.class) {
-                return (V) Long.valueOf(mPreferences.getLong(hashedKey, 0L));
+                return (V) mPreferences.getString(hashedKey, (String) defaultValue);
+            } else if (vClass == Boolean.class || vClass == boolean.class) {
+                return (V) Boolean.valueOf(mPreferences.getBoolean(hashedKey, (Boolean) defaultValue));
+            } else if (vClass == Float.class || vClass == float.class) {
+                return (V) Float.valueOf(mPreferences.getFloat(hashedKey, (Float) defaultValue));
+            } else if (vClass == Integer.class || vClass == int.class) {
+                return (V) Integer.valueOf(mPreferences.getInt(hashedKey, (Integer) defaultValue));
+            } else if (vClass == Long.class || vClass == long.class) {
+                return (V) Long.valueOf(mPreferences.getLong(hashedKey, (Long) defaultValue));
             } else {
-                return null;
+                throw new IllegalArgumentException("Class " + vClass + " is not supported");
             }
         }
     }
@@ -84,7 +100,7 @@ public class PreferencesStorage implements DataStorage<Serializable> {
                 editor.putLong(hashedKey, (Long) value);
                 return editor.commit();
             } else {
-                return false;
+                throw new IllegalArgumentException("Class " + value.getClass() + " doesn't supported");
             }
         }
     }

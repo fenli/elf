@@ -132,8 +132,9 @@ public class HttpRequest {
             return this;
         }
 
-        public void setRequestBody(RequestBody requestBody) {
+        public Builder setRequestBody(RequestBody requestBody) {
             this.mRequestBody = requestBody;
+            return this;
         }
 
         public Builder setUseCache(boolean useCache) {
@@ -161,8 +162,9 @@ public class HttpRequest {
             return this;
         }
 
-        public void setRetryCount(int retryCount) {
+        public Builder setRetryCount(int retryCount) {
             this.mRetryCount = retryCount;
+            return this;
         }
 
         private String getFullPathRequestUrl() {
