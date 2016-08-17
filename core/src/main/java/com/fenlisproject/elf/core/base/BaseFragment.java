@@ -195,4 +195,9 @@ public abstract class BaseFragment extends Fragment implements BaseEventListener
         return getActivity() instanceof BaseActivity ?
                 ((BaseActivity) getActivity()).getDefaultSessionStorage() : null;
     }
+
+    public SessionStorage getSecureSessionStorage() {
+        return getActivity() instanceof BaseActivity ?
+                ((BaseActivity) getActivity()).getSecureSessionStorage() : null;
+    }
 }

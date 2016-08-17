@@ -52,9 +52,11 @@ public class SQLiteDAO implements AutoCloseable {
         Annotation classAnnotation = classOfT.getAnnotation(Table.class);
         if (classAnnotation instanceof Table) {
             String tableName = ((Table) classAnnotation).name();
-            Cursor cursor = db.query(tableName, columns, selection, selectionArgs, groupBy,
-                    having, orderBy, limit);
-            data = fetchCursor(classOfT, cursor);
+            synchronized (db) {
+                Cursor cursor = db.query(tableName, columns, selection, selectionArgs, groupBy,
+                        having, orderBy, limit);
+                data = fetchCursor(classOfT, cursor);
+            }
         }
         return data;
     }
@@ -64,8 +66,10 @@ public class SQLiteDAO implements AutoCloseable {
     }
 
     public <T> List<T> rawQuery(Class<T> classOfT, String sql, String[] selectionArgs) {
-        Cursor cursor = db.rawQuery(sql, selectionArgs);
-        return fetchCursor(classOfT, cursor);
+        synchronized (db) {
+            Cursor cursor = db.rawQuery(sql, selectionArgs);
+            return fetchCursor(classOfT, cursor);
+        }
     }
 
     public <T> long insert(T data) {
@@ -96,7 +100,9 @@ public class SQLiteDAO implements AutoCloseable {
                     }
                 }
             }
-            return db.insert(tableName, null, values);
+            synchronized (db) {
+                return db.insert(tableName, null, values);
+            }
         }
         return -1;
     }
@@ -129,7 +135,9 @@ public class SQLiteDAO implements AutoCloseable {
                     }
                 }
             }
-            return db.update(tableName, values, filter, null);
+            synchronized (db) {
+                return db.update(tableName, values, filter, null);
+            }
         }
         return -1;
     }
@@ -188,11 +196,13 @@ public class SQLiteDAO implements AutoCloseable {
     }
 
     public boolean delete(String tableName, String filter, String[] filterArgs) {
-        int affected_rows = db.delete(tableName, filter, filterArgs);
-        if (affected_rows > 0) {
-            return false;
-        } else {
-            return true;
+        synchronized (db) {
+            int affected_rows = db.delete(tableName, filter, filterArgs);
+            if (affected_rows > 0) {
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 

@@ -85,6 +85,11 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseEven
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onClick(View v) {
         ElfCaller.callOnClickListener(this, v.getId());
     }
@@ -221,5 +226,10 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseEven
     public SessionStorage getDefaultSessionStorage() {
         return getApplicationContext() instanceof BaseApplication ?
                 ((BaseApplication) getApplicationContext()).getDefaultSessionStorage() : null;
+    }
+
+    public SessionStorage getSecureSessionStorage() {
+        return getApplicationContext() instanceof BaseApplication ?
+                ((BaseApplication) getApplicationContext()).getSecureSessionStorage() : null;
     }
 }

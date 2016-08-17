@@ -20,21 +20,21 @@ public class ExtendedRadioButton extends AppCompatRadioButton implements FontFac
     }
 
     public ExtendedRadioButton(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.radioButtonStyle);
+        this(context, attrs, R.attr.radioButtonStyle);
     }
 
     public ExtendedRadioButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         if (!isInEditMode()) {
-            initExtendedAttributes(attrs);
+            initExtendedAttributes(attrs, defStyleAttr);
         }
     }
 
-    public void initExtendedAttributes(AttributeSet attrs) {
+    public void initExtendedAttributes(AttributeSet attrs, int defStyle) {
         if (getContext().getApplicationContext() instanceof BaseApplication) {
             if (attrs != null) {
                 TypedArray style = getContext().obtainStyledAttributes(
-                        attrs, R.styleable.ExtendedTextView, 0, 0);
+                        attrs, R.styleable.ExtendedTextView, defStyle, 0);
                 String fontName = style.getString(R.styleable.ExtendedTextView_fontName);
                 String fontFormat = style.getString(R.styleable.ExtendedTextView_fontFormat);
                 style.recycle();

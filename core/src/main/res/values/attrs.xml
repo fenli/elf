@@ -3,11 +3,15 @@
     <declare-styleable name="ExtendedTextView">
         <attr name="fontName" format="string" />
         <attr name="fontFormat" format="string" />
+        <attr name="extendedTextViewStyle" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="ExtendedEditText">
         <attr name="required" format="boolean" />
         <attr name="trimmed" format="boolean" />
         <attr name="validEmail" format="boolean" />
         <attr name="matchValueOf" format="reference|integer" />
         <attr name="minLength" format="integer" />
+        <attr name="extendedEditTextStyle" format="reference" />
     </declare-styleable>
     <declare-styleable name="AppCompatTextView">
         <attr name="textAllCaps" format="reference|boolean" />

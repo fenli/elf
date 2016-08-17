@@ -45,6 +45,7 @@ public abstract class BaseDialog extends AppCompatDialog implements BaseEventLis
     }
 
     protected void initLayout() {
+        onBeforeSetContentView();
         ContentView contentView = getClass().getAnnotation(ContentView.class);
         if (contentView != null) {
             setContentView(contentView.value());
@@ -54,6 +55,9 @@ public abstract class BaseDialog extends AppCompatDialog implements BaseEventLis
         ElfBinder.bindEventListener(this, null);
         ElfBinder.bindAnimation(this);
         onContentViewCreated();
+    }
+
+    protected void onBeforeSetContentView() {
     }
 
     protected void onBeforeBindEventListener() {

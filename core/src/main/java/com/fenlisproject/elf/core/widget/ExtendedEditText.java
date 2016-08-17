@@ -1,6 +1,5 @@
 /*
 * Copyright (C) 2015 Steven Lewi
-* Copyright (C) 2014 The Android Open Source Project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,235 +16,176 @@
 
 package com.fenlisproject.elf.core.widget;
 
-
-/*
- * This is supposed to be a *very* thin veneer over TextView.
- * Do not make any changes here that do anything that a TextView
- * with a key listener and a movement method wouldn't do!
- */
-
-import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.view.TintableBackgroundView;
-import android.support.v7.internal.widget.TintContextWrapper;
-import android.support.v7.internal.widget.TintInfo;
-import android.support.v7.internal.widget.TintManager;
-import android.support.v7.internal.widget.TintTypedArray;
-import android.text.Editable;
-import android.text.Selection;
-import android.text.Spannable;
-import android.text.TextUtils;
-import android.text.method.ArrowKeyMovementMethod;
-import android.text.method.MovementMethod;
+import android.content.ContextWrapper;
+import android.content.res.TypedArray;
+import android.graphics.Typeface;
+import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
-import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
-import android.widget.EditText;
+import android.widget.TextView;
 
-/**
- * EditText is a thin veneer over TextView that configures itself
- * to be editable.
- * <p/>
- * <p>See the <a href="{@docRoot}guide/topics/ui/controls/text.html">Text Fields</a>
- * guide.</p>
- * <p/>
- * <b>XML attributes</b>
- * <p/>
- * See {@link android.R.styleable#EditText EditText Attributes},
- * {@link android.R.styleable#TextView TextView Attributes},
- * {@link android.R.styleable#View View Attributes}
- */
-public class ExtendedEditText extends ExtendedTextView implements TintableBackgroundView {
+import com.fenlisproject.elf.R;
+import com.fenlisproject.elf.core.base.BaseApplication;
+import com.fenlisproject.elf.core.data.MemoryStorage;
+import com.fenlisproject.elf.core.validator.Rule;
+import com.fenlisproject.elf.core.validator.rule.Match;
+import com.fenlisproject.elf.core.validator.rule.MinimumLength;
+import com.fenlisproject.elf.core.validator.rule.Required;
+import com.fenlisproject.elf.core.validator.rule.Trimmed;
+import com.fenlisproject.elf.core.validator.rule.ValidEmail;
 
-    private static final int[] TINT_ATTRS = {
-            android.R.attr.background
-    };
+import java.util.ArrayList;
+import java.util.List;
 
-    private TintInfo mBackgroundTint;
+public class ExtendedEditText extends AppCompatEditText implements FontFace, ExtendedAttributes {
+
+    private boolean isRequired;
+    private boolean isTrimmed;
+    private boolean mustValidEmail;
+    private int mMinLength;
+    private int mMatchValueOf;
 
     public ExtendedEditText(Context context) {
         this(context, null);
     }
 
     public ExtendedEditText(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.editTextStyle);
+        this(context, attrs, R.attr.editTextStyle);
     }
 
     public ExtendedEditText(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
-        if (TintManager.SHOULD_BE_USED) {
-            TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
-                    TINT_ATTRS, defStyleAttr, 0);
-            if (a.hasValue(0)) {
-                ColorStateList tint = a.getTintManager().getTintList(a.getResourceId(0, -1));
-                if (tint != null) {
-                    setSupportBackgroundTintList(tint);
+        super(context, attrs, defStyleAttr);
+        if (!isInEditMode()) {
+            initExtendedAttributes(attrs, defStyleAttr);
+        }
+    }
+
+    public void initExtendedAttributes(AttributeSet attrs, int defStyle) {
+        if (getContext().getApplicationContext() instanceof BaseApplication) {
+            if (attrs != null) {
+                TypedArray styleTextView = getContext().obtainStyledAttributes(
+                        attrs, R.styleable.ExtendedTextView, defStyle, 0);
+                TypedArray styleEditText = getContext().obtainStyledAttributes(
+                        attrs, R.styleable.ExtendedEditText, defStyle, 0);
+                String fontName = styleTextView.getString(R.styleable.ExtendedTextView_fontName);
+                String fontFormat = styleTextView.getString(R.styleable.ExtendedTextView_fontFormat);
+                isRequired = styleEditText.getBoolean(R.styleable.ExtendedEditText_required, false);
+                isTrimmed = styleEditText.getBoolean(R.styleable.ExtendedEditText_trimmed, false);
+                mustValidEmail = styleEditText.getBoolean(R.styleable.ExtendedEditText_validEmail, false);
+                mMinLength = styleEditText.getInteger(R.styleable.ExtendedEditText_minLength, 0);
+                mMatchValueOf = styleEditText.getResourceId(R.styleable.ExtendedEditText_matchValueOf, 0);
+                styleTextView.recycle();
+                styleEditText.recycle();
+                setFontFace(fontName, fontFormat != null ? fontFormat : FORMAT_TTF);
+            } else {
+                isRequired = false;
+                isTrimmed = false;
+                mustValidEmail = false;
+                mMinLength = 0;
+                mMatchValueOf = 0;
+            }
+        } else {
+            throw new RuntimeException("Your application class must extends BaseApplication");
+        }
+    }
+
+    @Override
+    public void setFontFace(String fontName) {
+        setFontFace(fontName, FORMAT_TTF);
+    }
+
+    @Override
+    public void setFontFace(String fontName, String fontFormat) {
+        BaseApplication app = ((BaseApplication) getContext().getApplicationContext());
+        MemoryStorage<Typeface> fontCache = app.getFontCache();
+        if (fontName != null) {
+            try {
+                Typeface tf = fontCache.get(fontName);
+                if (tf == null) {
+                    String fontFilePath = String.format("fonts/%s.%s", fontName, fontFormat);
+                    tf = Typeface.createFromAsset(getContext().getAssets(), fontFilePath);
+                    fontCache.put(fontName, tf);
                 }
-            }
-            a.recycle();
-        }
-    }
-
-    /**
-     * This should be accessed via
-     * {@link android.support.v4.view.ViewCompat#setBackgroundTintList(android.view.View,
-     * android.content.res.ColorStateList)}
-     *
-     * @hide
-     */
-    @Override
-    public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
-        if (mBackgroundTint == null) {
-            mBackgroundTint = new TintInfo();
-        }
-        mBackgroundTint.mTintList = tint;
-        mBackgroundTint.mHasTintList = true;
-
-        applySupportBackgroundTint();
-    }
-
-    /**
-     * This should be accessed via
-     * {@link android.support.v4.view.ViewCompat#getBackgroundTintList(android.view.View)}
-     *
-     * @hide
-     */
-    @Nullable
-    @Override
-    public ColorStateList getSupportBackgroundTintList() {
-        return mBackgroundTint != null ? mBackgroundTint.mTintList : null;
-    }
-
-    /**
-     * This should be accessed via
-     * {@link android.support.v4.view.ViewCompat#setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode)}
-     *
-     * @hide
-     */
-    @Override
-    public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
-        if (mBackgroundTint == null) {
-            mBackgroundTint = new TintInfo();
-        }
-        mBackgroundTint.mTintMode = tintMode;
-        mBackgroundTint.mHasTintMode = true;
-
-        applySupportBackgroundTint();
-    }
-
-    /**
-     * This should be accessed via
-     * {@link android.support.v4.view.ViewCompat#getBackgroundTintMode(android.view.View)}
-     *
-     * @hide
-     */
-    @Override
-    public PorterDuff.Mode getSupportBackgroundTintMode() {
-        return mBackgroundTint != null ? mBackgroundTint.mTintMode : null;
-    }
-
-    @Override
-    protected void drawableStateChanged() {
-        super.drawableStateChanged();
-        applySupportBackgroundTint();
-    }
-
-    private void applySupportBackgroundTint() {
-        if (getBackground() != null && mBackgroundTint != null) {
-            TintManager.tintViewBackground(this, mBackgroundTint);
-        }
-    }
-
-    @Override
-    protected boolean getDefaultEditable() {
-        return true;
-    }
-
-    @Override
-    protected MovementMethod getDefaultMovementMethod() {
-        return ArrowKeyMovementMethod.getInstance();
-    }
-
-    @Override
-    public Editable getText() {
-        return (Editable) super.getText();
-    }
-
-    @Override
-    public void setText(CharSequence text, BufferType type) {
-        super.setText(text, BufferType.EDITABLE);
-    }
-
-    /**
-     * Convenience for {@link Selection#setSelection(Spannable, int, int)}.
-     */
-    public void setSelection(int start, int stop) {
-        Selection.setSelection(getText(), start, stop);
-    }
-
-    /**
-     * Convenience for {@link Selection#setSelection(Spannable, int)}.
-     */
-    public void setSelection(int index) {
-        Selection.setSelection(getText(), index);
-    }
-
-    /**
-     * Convenience for {@link Selection#selectAll}.
-     */
-    public void selectAll() {
-        Selection.selectAll(getText());
-    }
-
-    /**
-     * Convenience for {@link Selection#extendSelection}.
-     */
-    public void extendSelection(int index) {
-        Selection.extendSelection(getText(), index);
-    }
-
-    @Override
-    public void setEllipsize(TextUtils.TruncateAt ellipsis) {
-        if (ellipsis == TextUtils.TruncateAt.MARQUEE) {
-            throw new IllegalArgumentException("EditText cannot use the ellipsize mode "
-                    + "TextUtils.TruncateAt.MARQUEE");
-        }
-        super.setEllipsize(ellipsis);
-    }
-
-    @Override
-    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
-        super.onInitializeAccessibilityEvent(event);
-        event.setClassName(EditText.class.getName());
-    }
-
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-    @Override
-    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-        super.onInitializeAccessibilityNodeInfo(info);
-        info.setClassName(EditText.class.getName());
-    }
-
-    @Override
-    public boolean performAccessibilityAction(int action, Bundle arguments) {
-        switch (action) {
-            case AccessibilityNodeInfo.ACTION_SET_TEXT: {
-                CharSequence text = (arguments != null) ? arguments.getCharSequence(
-                        AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE) : null;
-                setText(text);
-                if (text != null && text.length() > 0) {
-                    setSelection(text.length());
-                }
-                return true;
-            }
-            default: {
-                return super.performAccessibilityAction(action, arguments);
+                setTypeface(tf);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
+    }
+
+    public boolean isRequired() {
+        return isRequired;
+    }
+
+    public void setRequired(boolean isRequired) {
+        this.isRequired = isRequired;
+    }
+
+    public boolean isTrimmed() {
+        return isTrimmed;
+    }
+
+    public void setTrimmed(boolean isTrimmed) {
+        this.isTrimmed = isTrimmed;
+    }
+
+    public boolean isMustValidEmail() {
+        return mustValidEmail;
+    }
+
+    public void setMustValidEmail(boolean mustValidEmail) {
+        this.mustValidEmail = mustValidEmail;
+    }
+
+    public int getMinLength() {
+        return mMinLength;
+    }
+
+    public void setMinLength(int mMinLength) {
+        this.mMinLength = mMinLength;
+    }
+
+    public int getMatchValueOf() {
+        return mMatchValueOf;
+    }
+
+    public void setMatchValueOf(int mMatchValueOf) {
+        this.mMatchValueOf = mMatchValueOf;
+    }
+
+    public String getValue() {
+        return isTrimmed ? getText().toString().trim() : getText().toString();
+    }
+
+    public List<Rule> getRules() {
+        Context c = getContext();
+        List<Rule> rules = new ArrayList<>();
+        if (isTrimmed) {
+            rules.add(new Trimmed());
+        }
+        if (isRequired) {
+            rules.add(new Required(c.getString(R.string.required_validation_message)));
+        }
+        if (mustValidEmail) {
+            rules.add(new ValidEmail(c.getString(R.string.email_validation_message)));
+        }
+        if (mMinLength > 0) {
+            rules.add(new MinimumLength(
+                    String.format(c.getString(R.string.minlength_validation_message), mMinLength),
+                    mMinLength
+            ));
+        }
+        if (mMatchValueOf != 0) {
+            ContextWrapper cw = (ContextWrapper) getContext();
+            TextView view = (TextView) ((Activity) cw.getBaseContext()).findViewById(mMatchValueOf);
+            if (view != null) {
+                rules.add(new Match(
+                        String.format(c.getString(R.string.match_validation_message), view.getHint()),
+                        view
+                ));
+            }
+        }
+        return rules;
     }
 }

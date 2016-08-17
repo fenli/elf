@@ -54,21 +54,23 @@ public class MultipartFormData implements RequestBody {
 
     @Override
     public void write(HttpRequest request) throws IOException {
-        request.getHttpURLConnection().setRequestProperty("Content-Type", mContentType);
-        request.getHttpURLConnection().setDoInput(true);
-        request.getHttpURLConnection().setDoOutput(true);
-        OutputStream os = request.getHttpURLConnection().getOutputStream();
+        request.getConnection().setRequestProperty("Content-Type", mContentType);
+        request.getConnection().setDoInput(true);
+        request.getConnection().setDoOutput(true);
+        OutputStream os = request.getConnection().getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);
         for (MultipartFormEntity entity : mContent) {
             if (entity instanceof StringFormEntity) {
                 StringFormEntity stringEntity = ((StringFormEntity) entity);
-                dos.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
-                dos.writeBytes(String.format(
-                        "Content-Disposition: form-data; name=\"%s\"", stringEntity.getKey()
-                ));
-                dos.writeBytes(CRLF + CRLF);
-                dos.writeBytes(stringEntity.getValue());
-                dos.writeBytes(CRLF);
+                String key = stringEntity.getKey();
+                String value = stringEntity.getValue();
+                if (key != null && value != null) {
+                    dos.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
+                    dos.writeBytes(String.format("Content-Disposition: form-data; name=\"%s\"", key));
+                    dos.writeBytes(CRLF + CRLF);
+                    dos.writeBytes(stringEntity.getValue());
+                    dos.writeBytes(CRLF);
+                }
             } else if (entity instanceof FileFormEntity) {
                 FileFormEntity fileEntity = ((FileFormEntity) entity);
                 if (fileEntity.getValue().exists()) {

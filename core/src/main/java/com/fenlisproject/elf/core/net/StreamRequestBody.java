@@ -17,10 +17,10 @@ public class StreamRequestBody implements RequestBody {
 
     @Override
     public void write(HttpRequest request) throws IOException {
-        request.getHttpURLConnection().setRequestProperty("Content-Type", mContentType);
-        request.getHttpURLConnection().setDoInput(true);
-        request.getHttpURLConnection().setDoOutput(true);
-        OutputStream os = request.getHttpURLConnection().getOutputStream();
+        request.getConnection().setRequestProperty("Content-Type", mContentType);
+        request.getConnection().setDoInput(true);
+        request.getConnection().setDoOutput(true);
+        OutputStream os = request.getConnection().getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);
         byte[] buf = new byte[1024];
         try {

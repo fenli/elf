@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.fenlisproject.elf.core.net;
+package com.fenlisproject.elf.core.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

@@ -43,23 +43,23 @@ public class PreferencesStorage implements DataStorage<Serializable> {
         if (vClass == String.class) {
             return get(key, vClass, null);
         } else if (vClass == Boolean.class || vClass == boolean.class) {
-            return get(key, vClass, false);
+            return get(key, vClass, (V) Boolean.valueOf(false));
         } else if (vClass == Float.class || vClass == float.class) {
-            return get(key, vClass, 0F);
+            return get(key, vClass, (V) Float.valueOf(0));
         } else if (vClass == Integer.class || vClass == int.class) {
-            return get(key, vClass, 0);
+            return get(key, vClass, (V) Integer.valueOf(0));
         } else if (vClass == Long.class || vClass == long.class) {
-            return get(key, vClass, 0L);
+            return get(key, vClass, (V) Long.valueOf(0));
         } else {
             throw new IllegalArgumentException("Class " + vClass + " is not supported");
         }
     }
 
-    public <V extends Serializable> V get(String key, Class<V> vClass, Object defaultValue) {
+    public <V extends Serializable> V get(String key, Class<V> vClass, V defaultValue) {
         synchronized (this) {
             String hashedKey = SecurityUtils.md5(mBundleName + "." + key);
             if (vClass == String.class) {
-                return (V) mPreferences.getString(hashedKey, (String) defaultValue);
+                return (V) mPreferences.getString(hashedKey, String.valueOf(defaultValue));
             } else if (vClass == Boolean.class || vClass == boolean.class) {
                 return (V) Boolean.valueOf(mPreferences.getBoolean(hashedKey, (Boolean) defaultValue));
             } else if (vClass == Float.class || vClass == float.class) {
@@ -100,7 +100,7 @@ public class PreferencesStorage implements DataStorage<Serializable> {
                 editor.putLong(hashedKey, (Long) value);
                 return editor.commit();
             } else {
-                throw new IllegalArgumentException("Class " + value.getClass() + " doesn't supported");
+                throw new IllegalArgumentException("Class " + value.getClass() + " is not supported");
             }
         }
     }

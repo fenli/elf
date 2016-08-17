@@ -16,19 +16,9 @@
 
 package com.fenlisproject.elf.core.net;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import com.fenlisproject.elf.core.util.URLUtils;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
@@ -38,12 +28,17 @@ import java.util.List;
 public class HttpRequest {
 
     private HttpURLConnection mConnection;
+    private HttpResponse mResponse;
 
     private HttpRequest(String url) throws IOException {
         mConnection = (HttpURLConnection) new URL(url).openConnection();
     }
 
-    public HttpURLConnection getHttpURLConnection() {
+    private void setResponse(HttpResponse mResponse) {
+        this.mResponse = mResponse;
+    }
+
+    public HttpURLConnection getConnection() {
         return mConnection;
     }
 
@@ -56,43 +51,8 @@ public class HttpRequest {
         }
     }
 
-    public InputStream getInputStream() {
-        try {
-            return mConnection.getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public InputStreamReader getStreamReader() {
-        InputStream is = getInputStream();
-        if (is != null) {
-            return new InputStreamReader(new BufferedInputStream(is));
-        } else {
-            return new InputStreamReader(new BufferedInputStream(mConnection.getErrorStream()));
-        }
-    }
-
-    public Bitmap getBitmapContent() {
-        return BitmapFactory.decodeStream(getInputStream());
-    }
-
-    public String getTextContent() {
-        try {
-            BufferedReader r = new BufferedReader(getStreamReader());
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = r.readLine()) != null) {
-                sb.append(line);
-            }
-            return sb.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public HttpResponse getResponse() {
+        return mResponse;
     }
 
     public static class Builder {
@@ -104,11 +64,10 @@ public class HttpRequest {
         private boolean isUseCache;
         private String mRequestUrl;
         private RequestMethod mRequestMethod;
-        private List<NameValuePair> mHeaders;
-        private List<NameValuePair> mUrlParams;
+        private List<KeyValuePair> mHeaders;
+        private List<KeyValuePair> mUrlParams;
         private RequestBody mRequestBody;
         private boolean isForceUseCache;
-        private int mRetryCount;
 
         public Builder(String url) {
             this.mRequestUrl = url;
@@ -119,16 +78,15 @@ public class HttpRequest {
             this.mHeaders = new ArrayList<>();
             this.mConnectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
             this.mReadTimeout = DEFAULT_READ_TIMEOUT;
-            this.mRetryCount = 1;
         }
 
         public Builder addRequestHeader(String key, String value) {
-            this.mHeaders.add(new BasicNameValuePair(key, value));
+            this.mHeaders.add(new KeyValuePair(key, value));
             return this;
         }
 
         public Builder addUrlParams(String key, String value) {
-            this.mUrlParams.add(new BasicNameValuePair(key, value));
+            this.mUrlParams.add(new KeyValuePair(key, value));
             return this;
         }
 
@@ -162,11 +120,6 @@ public class HttpRequest {
             return this;
         }
 
-        public Builder setRetryCount(int retryCount) {
-            this.mRetryCount = retryCount;
-            return this;
-        }
-
         private String getFullPathRequestUrl() {
             String queryString = URLUtils.generateUrlEncodedString(mUrlParams);
             if (queryString.length() > 0) {
@@ -178,40 +131,42 @@ public class HttpRequest {
 
         public HttpRequest create() {
             HttpRequest request = null;
-            while (mRetryCount-- > 0) {
-                try {
-                    request = new HttpRequest(getFullPathRequestUrl());
-                    request.getHttpURLConnection().setUseCaches(isUseCache);
-                    request.getHttpURLConnection().setRequestMethod(mRequestMethod.name());
-                    request.getHttpURLConnection().setConnectTimeout(mConnectionTimeout);
-                    request.getHttpURLConnection().setReadTimeout(mReadTimeout);
-                    for (NameValuePair header : mHeaders) {
-                        request.getHttpURLConnection()
-                                .setRequestProperty(header.getName(), header.getValue());
-                    }
-                    switch (mRequestMethod) {
-                        case POST:
-                        case PUT:
-                        case DELETE:
-                            if (mRequestBody != null) {
-                                mRequestBody.write(request);
-                            }
-                            break;
-                    }
-                    if (isForceUseCache) {
-                        request.getHttpURLConnection()
-                                .addRequestProperty("Cache-Control", "only-if-cached");
-                    }
-                    mRetryCount = 0;
-                } catch (ProtocolException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
+            try {
+                request = new HttpRequest(getFullPathRequestUrl());
+                request.getConnection().setUseCaches(isUseCache);
+                request.getConnection().setRequestMethod(mRequestMethod.name());
+                request.getConnection().setConnectTimeout(mConnectionTimeout);
+                request.getConnection().setReadTimeout(mReadTimeout);
+                for (KeyValuePair header : mHeaders) {
+                    request.getConnection().setRequestProperty(header.getKey(), header.getValue());
                 }
+                switch (mRequestMethod) {
+                    case POST:
+                    case PUT:
+                    case DELETE:
+                        if (mRequestBody != null) {
+                            mRequestBody.write(request);
+                        }
+                        break;
+                }
+                if (isForceUseCache) {
+                    request.getConnection().addRequestProperty("Cache-Control", "only-if-cached");
+                }
+                request.setResponse(new HttpResponse(request.getConnection()));
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NullPointerException e) {
+                e.printStackTrace();
             }
             return request;
         }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        closeConnection();
+        super.finalize();
     }
 }

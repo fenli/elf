@@ -4,5 +4,5 @@ import android.util.AttributeSet;
 
 public interface ExtendedAttributes {
 
-    void initExtendedAttributes(AttributeSet attrs);
+    void initExtendedAttributes(AttributeSet attrs, int defStyleAttr);
 }
